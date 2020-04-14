@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+message Wrapper {
+
+    enum DataType {
+        SPEED = 0;
+        FORCE = 1;
+        IMU = 2;
+        POWER = 3;
+        TEMPERATURE = 4;
+        WIND = 5;
+    }
+
+    DataType type = 1;
+    bytes data = 2;   
+}
+
+message Speed {
+    int64 time = 1; // millis since epoch
+    float RPM = 2; // rev/min
+}
+
+message Force {
+    int64 time = 1;
+    float force = 2; // N
+    int32 id = 3; // with multiple strain gauges, could consider an enum
+}
+
+message Power { // could later include a measurement point
+    int64 time = 1;
+    float current = 2; 
+    float voltage = 3;
+}
+
+message Imu {
+    int64 time = 1;
+    Vector3 acc = 2; // m/ss
+    Vector3 gyro = 3; // rad/s
+    Quaternion orientation = 4; 
+}
+
+message Temperature {
+    int64 time = 1;
+    float temperature = 2;
+}
+
+message Wind {
+    int64 time = 1;
+    float speed = 2;
+    float direction = 3;
+}
+
+message Vector3 {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}
+
+message Quaternion { // needs a definition
+    float x = 1;
+    float y = 2;
+    float z = 3;
+    float w = 4;
+}
