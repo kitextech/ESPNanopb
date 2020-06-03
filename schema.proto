@@ -9,6 +9,8 @@ message Wrapper {
         POWER = 3;
         TEMPERATURE = 4;
         WIND = 5;
+        VESC = 6;
+        SETPOINT = 7;
     }
 
     DataType type = 1;
@@ -61,4 +63,23 @@ message Quaternion { // needs a definition
     float y = 2;
     float z = 3;
     float w = 4;
+}
+
+message Vesc {
+    int64 time = 1;
+    float avgMotorCurrent = 2;
+    float avgInputCurrent = 3;
+    float dutyCycleNow = 4;
+    int32 rpm = 5;
+    float inpVoltage = 6;
+    float ampHours = 7;
+    float ampHoursCharged = 8;
+    int32 tachometer = 9;
+    int32 tachometerAbs = 10;
+}
+
+message Setpoint {
+    int64 time = 1;
+    float RPM = 2;
+    float current = 3;
 }
