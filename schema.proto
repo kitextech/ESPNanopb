@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = ".;pb";
+
 message Wrapper {
 
     enum DataType {
@@ -11,6 +13,7 @@ message Wrapper {
         WIND = 5;
         VESC = 6;
         SETPOINT = 7;
+        BLADE = 8;
     }
 
     DataType type = 1;
@@ -82,4 +85,18 @@ message Setpoint {
     int64 time = 1;
     float RPM = 2;
     float current = 3;
+
+    enum Origin {
+        WEB = 0;
+        ESP = 1;
+    }
+    Origin origin = 4;
+}
+
+message BladeControl {
+    int64 time = 1;
+    float pitch1 = 2;
+    float pitch2 = 3;
+    float pitch3 = 4;
+    float collectivePitch = 5;
 }
