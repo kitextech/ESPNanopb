@@ -14,6 +14,7 @@ message Wrapper {
         VESC = 6;
         SETPOINT = 7;
         BLADE = 8;
+        TURBINECONTROL = 9;
     }
 
     DataType type = 1;
@@ -99,4 +100,19 @@ message BladeControl {
     float pitch2 = 3;
     float pitch3 = 4;
     float collectivePitch = 5;
+}
+
+message TurbineControl {
+    int64 time = 1;
+    float value = 2;
+
+    enum Command {
+        Stop = 0; // Sets duty cycle = 0. 
+        Auto = 1; // Automatic turbine control as defined on the ESP
+        Speed = 2; // RPM
+        Pos = 3; // Position relative to position when first set
+        Current = 4; // winding current negative is breaking
+    }
+
+    Command command = 3;
 }
