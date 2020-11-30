@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+option go_package = ".;pb";
+
+message Wrapper {
+
+    enum DataType {
+        SPEED = 0;
+        FORCE = 1;
+        IMU = 2;
+        POWER = 3;
+        TEMPERATURE = 4;
+        WIND = 5;
+        VESC = 6;
+        SETPOINT = 7;
+        BLADE = 8;
+        TURBINECONTROL = 9;
+        ACC = 10;
+        ACCGYRO = 11;
+    }
+
+    DataType type = 1;
+    bytes data = 2;   
+}
+
+message Speed {
+    int64 time = 1; // millis since epoch
+    float RPM = 2; // rev/min
+}
+
+message Force {
+    int64 time = 1;
+    float force = 2; // N
+    int32 id = 3; // with multiple strain gauges, could consider an enum
+}
+
+message Power { // could later include a measurement point
+    int64 time = 1;
+    float current = 2; 
+    float voltage = 3;
+}
+
+message Imu {
+    int64 time = 1;
+    Vector3 acc = 2; // m/ss
+    Vector3 gyro = 3; // rad/s
+    Quaternion orientation = 4; 
+}
+
+message Acc {
+    uint64 time = 1;
+    Vector3 acc = 2; // m/ss
+}
+
+message AccGyro {
+    uint64 time = 1;
+    Vector3 acc = 2; // m/ss
+    Vector3 gyro = 3; // rad/s
+}
+
+message Temperature {
+    int64 time = 1;
+    float temperature = 2;
+}
+
+message Wind {
+    int64 time = 1;
+    float speed = 2;
+    float direction = 3;
+}
+
+message Vector3 {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}
+
+message Quaternion { // needs a definition
+    float x = 1;
+    float y = 2;
+    float z = 3;
+    float w = 4;
+}
+
+message Vesc {
+    int64 time = 1;
+    float avgMotorCurrent = 2;
+    float avgInputCurrent = 3;
+    float dutyCycleNow = 4;
+    int32 rpm = 5;
+    float inpVoltage = 6;
+    float ampHours = 7;
+    float ampHoursCharged = 8;
+    int32 tachometer = 9;
+    int32 tachometerAbs = 10;
+}
+
+message Setpoint {
+    int64 time = 1;
+    float RPM = 2;
+    float current = 3;
+
+    enum Origin {
+        WEB = 0;
+        ESP = 1;
+    }
+    Origin origin = 4;
+}
+
+message BladeControl {
+    int64 time = 1;
+    float pitch1 = 2;
+    float pitch2 = 3;
+    float pitch3 = 4;
+    float collectivePitch = 5;
+}
+
+message TurbineControl {
+    int64 time = 1;
+    float value = 2;
+
+    enum Command {
+        Stop = 0; // Sets duty cycle = 0. 
+        Auto = 1; // Automatic turbine control as defined on the ESP
+        Speed = 2; // RPM
+        Pos = 3; // Position relative to position when first set
+        Current = 4; // winding current negative is breaking
+    }
+
+    Command command = 3;
+}

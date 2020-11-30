@@ -1,0 +1,1 @@
+python generator/nanopb_generator.py schema.proto
