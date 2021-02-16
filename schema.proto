@@ -17,6 +17,8 @@ message Wrapper {
         TURBINECONTROL = 9;
         ACC = 10;
         ACCGYRO = 11;
+        HUMIDITYTEMP = 12;
+        
     }
 
     DataType type = 1;
@@ -56,6 +58,12 @@ message AccGyro {
     uint64 time = 1;
     Vector3 acc = 2; // m/ss
     Vector3 gyro = 3; // rad/s
+}
+
+message HumidityTemperature {
+    uint64 time = 1;
+    float humidity = 2; // %
+    float temperature = 3; // %
 }
 
 message Temperature {
