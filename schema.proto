@@ -18,6 +18,7 @@ message Wrapper {
         ACC = 10;
         ACCGYRO = 11;
         HUMIDITYTEMP = 12;
+        WINDDIR = 13;
         
     }
 
@@ -136,4 +137,9 @@ message TurbineControl {
     }
 
     Command command = 3;
+}
+
+message WindDirection {
+    int64 time = 1;
+    float direction = 2;
 }
