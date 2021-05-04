@@ -19,6 +19,8 @@ message Wrapper {
         ACCGYRO = 11;
         HUMIDITYTEMP = 12;
         WINDDIR = 13;
+        VESC2 = 14;
+        HALLROTOR = 15;
         
     }
 
@@ -104,6 +106,31 @@ message Vesc {
     int32 tachometerAbs = 10;
 }
 
+message Vesc2 {
+
+// // Local VESC FET temperature	
+// // Local VESC Motor temperature	
+// // Local VESC average Motor current	
+// // Local VESC average Input current	
+// // Local VESC ERPM	
+// // Local VESC input voltage	
+// // Local VESC fault status	
+// // Local VESC PID position	
+// mask made by KiteX, Andreas Okholm 10 april 2020. 
+
+    int64 time = 1;
+    float tempFET = 2;
+    float tempMotor = 3;
+    float avgMotorCurrent = 4;
+    float avgInputCurrent = 5;
+    int32 rpm = 6;
+    float inpVoltage = 7;
+    int32 fault = 8;
+    float pidPosNow = 9;
+    int32 tachometer = 10;
+    float currentSP = 11;
+}
+
 message Setpoint {
     int64 time = 1;
     float RPM = 2;
@@ -122,6 +149,8 @@ message BladeControl {
     float pitch2 = 3;
     float pitch3 = 4;
     float collectivePitch = 5;
+    float pitchP = 6;
+    float pitchI = 7; 
 }
 
 message TurbineControl {
@@ -137,9 +166,16 @@ message TurbineControl {
     }
 
     Command command = 3;
+
+    BladeControl blade = 4;
 }
 
 message WindDirection {
     int64 time = 1;
     float direction = 2;
+}
+
+message HallRotor {
+    int64 time = 1;
+    bool on = 2;
 }
