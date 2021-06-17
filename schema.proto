@@ -179,3 +179,10 @@ message HallRotor {
     int64 time = 1;
     bool on = 2;
 }
+
+message PitchControl {
+    float collectiveExternal = 1;
+    bool speedControlEnabled = 2;
+    float omegaRotor = 3;
+    float omegaRotorSp = 4;
+}
