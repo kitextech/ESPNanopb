@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "nanopb.proto";
+
 option go_package = ".;pb";
 
 message Wrapper {
@@ -21,11 +23,12 @@ message Wrapper {
         WINDDIR = 13;
         VESC2 = 14;
         HALLROTOR = 15;
-        
+        SUPERVISOR = 16;
+        PITCH = 17;
     }
 
     DataType type = 1;
-    bytes data = 2;   
+    bytes data = 2 [(nanopb).max_size = 92];   
 }
 
 message Speed {
@@ -36,7 +39,7 @@ message Speed {
 message Force {
     int64 time = 1;
     float force = 2; // N
-    int32 id = 3; // with multiple strain gauges, could consider an enum
+    int32 id = 3; // with multiple strain gauges; could consider an enum
 }
 
 message Power { // could later include a measurement point
@@ -153,6 +156,42 @@ message BladeControl {
     float pitchI = 7; 
 }
 
+message CommonBladeControl {
+    int64 time = 1;
+    float pitchSP = 2;
+    float pitchEstimate = 3; 
+    float pitchI = 4;
+}
+
+enum TurbineTopLevelMode {
+    Storage = 0; // Not implemented yet - shuts off the VESC and ESP
+    Idle = 1; // VESC is turned off. Wifi enabled. Clibrate; when entered from Storage. Pitch to 90 degree. Turn Servo off.
+    Hold = 2; // Temporary locking the rotation of the turbine
+    Operation = 3; // Normal power producing operation. 
+    ManualOperationMode = 4; // Manual overwrite send TurbineControl Commands.
+    ManualTurbineControlMode = 5; // Manual overwrite send TurbineControl Commands.
+    ManualPitchCalibrateMode = 6; // Recalibrate pitch
+};
+
+enum OperationMode {
+    Hunting = 0; // When there is not enough wind to sustain operation. Pitch up and wait for activity. Current = 0
+    Generation = 1; // In automatic mode; Default mode.
+    AboveCutout = 2; // When the blade pitch hits ~25 degree sustained; then go to 80 degree and set the maximum breaking torque to 
+    ComsumePower = 3; // Go to pitch 90 degree and rotate -20 RPM backwards.
+};
+
+message TurbineSupervisorControl {
+    TurbineTopLevelMode topLevelMode = 1;
+    OperationMode operationMode = 2;
+    TurbineControlLight turbControl = 3;
+}
+
+message Pitch {
+    float offsetDistance = 1;
+    float offsetAngle = 2; 
+    bool overwrite = 3;
+}
+
 message TurbineControl {
     int64 time = 1;
     float value = 2;
@@ -166,8 +205,23 @@ message TurbineControl {
     }
 
     Command command = 3;
-
     BladeControl blade = 4;
+}
+
+message TurbineControlLight {
+    
+    enum Command {
+        Stop = 0; // Sets duty cycle = 0. 
+        Auto = 1; // Automatic turbine control as defined on the ESP
+        Speed = 2; // RPM
+        Pos = 3; // Position relative to position when first set
+        Current = 4; // winding current negative is breaking
+        Cutout = 5; // load reduction, but still producing power enought power to keep the turbine powered.
+    }
+    
+    Command command = 1;
+    float value = 2;
+    float collective = 3; 
 }
 
 message WindDirection {
@@ -181,8 +235,18 @@ message HallRotor {
 }
 
 message PitchControl {
-    float collectiveExternal = 1;
+    float collective = 1;
     bool speedControlEnabled = 2;
     float omegaRotor = 3;
     float omegaRotorSp = 4;
+}
+
+message ServoState {
+
+    enum State {
+        Operational = 0;
+        Calibrating = 1;
+    }
+    State state = 1; // the state of affairs
+    float pitch = 2; // pitch angle can only be trusted once it's calibrated.
 }
