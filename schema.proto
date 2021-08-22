@@ -25,10 +25,13 @@ message Wrapper {
         HALLROTOR = 15;
         SUPERVISOR = 16;
         PITCH = 17;
+        COMMONBLADE = 18;
+        ALIVE = 19;
     }
 
     DataType type = 1;
-    bytes data = 2 [(nanopb).max_size = 92];   
+    bytes data = 2 [(nanopb).max_size = 92]; 
+    string target = 3 [(nanopb).max_size = 6];
 }
 
 message Speed {
@@ -249,4 +252,9 @@ message ServoState {
     }
     State state = 1; // the state of affairs
     float pitch = 2; // pitch angle can only be trusted once it's calibrated.
+}
+
+message Alive {
+    int64 time = 1;
+    string id = 2 [(nanopb).max_size = 6];; // 6 chars. 
 }
