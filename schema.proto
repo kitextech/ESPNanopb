@@ -174,6 +174,8 @@ enum TurbineTopLevelMode {
     ManualOperationMode = 4; // Manual overwrite send TurbineControl Commands.
     ManualTurbineControlMode = 5; // Manual overwrite send TurbineControl Commands.
     ManualPitchCalibrateMode = 6; // Recalibrate pitch
+    ShowMode = 7; // spin at low speed and pitch back and forth. 
+    TorqueTestMode = 8; // Load the gearbox up to rated torque.
 };
 
 enum OperationMode {
