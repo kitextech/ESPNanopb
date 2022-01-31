@@ -27,6 +27,8 @@ message Wrapper {
         PITCH = 17;
         COMMONBLADE = 18;
         ALIVE = 19;
+        UPDATEFREQUENCY = 20;
+        ACCMAX = 21;
     }
 
     DataType type = 1;
@@ -176,6 +178,7 @@ enum TurbineTopLevelMode {
     ManualPitchCalibrateMode = 6; // Recalibrate pitch
     ShowMode = 7; // spin at low speed and pitch back and forth. 
     TorqueTestMode = 8; // Load the gearbox up to rated torque.
+    OperationStall = 9; // Stall operation mode.
 };
 
 enum OperationMode {
@@ -183,6 +186,7 @@ enum OperationMode {
     Generation = 1; // In automatic mode; Default mode.
     AboveCutout = 2; // When the blade pitch hits ~25 degree sustained; then go to 80 degree and set the maximum breaking torque to 
     ComsumePower = 3; // Go to pitch 90 degree and rotate -20 RPM backwards.
+    GenerationStall = 4; // Stall default operation mode. 
 };
 
 message TurbineSupervisorControl {
@@ -222,6 +226,7 @@ message TurbineControlLight {
         Pos = 3; // Position relative to position when first set
         Current = 4; // winding current negative is breaking
         Cutout = 5; // load reduction, but still producing power enought power to keep the turbine powered.
+        AutoStall = 6; // Use rpm based algorithm to apply correct torque for stall control. 
     }
     
     Command command = 1;
@@ -244,6 +249,8 @@ message PitchControl {
     bool speedControlEnabled = 2;
     float omegaRotor = 3;
     float omegaRotorSp = 4;
+    bool stallBrakeEnabled = 5;
+    float stallAngle = 6;
 }
 
 message ServoState {
@@ -258,5 +265,19 @@ message ServoState {
 
 message Alive {
     int64 time = 1;
-    string id = 2 [(nanopb).max_size = 6];; // 6 chars. 
+    string id = 2 [(nanopb).max_size = 6]; // 6 chars. 
+}
+
+message UpdateFrequency {
+    uint32 rateLimitImu = 1;
+    uint32 rateLimitAccGyro = 2;
+    uint32 rateLimitAcc = 3;
+    uint32 rateLimitWindDir = 4;
+    uint32 rateLimitVesc = 5;
+    uint32 rateLimitCommonBladeControl = 6;  
+}
+
+message AccMax {
+    uint64 time = 1;
+    Vector3 accmax = 2; // m/ss
 }
