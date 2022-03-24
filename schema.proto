@@ -29,6 +29,9 @@ message Wrapper {
         ALIVE = 19;
         UPDATEFREQUENCY = 20;
         ACCMAX = 21;
+        WINDSONIC = 22;
+        ROTORVEL = 23;
+        DEBUG = 24;
     }
 
     DataType type = 1;
@@ -275,9 +278,37 @@ message UpdateFrequency {
     uint32 rateLimitWindDir = 4;
     uint32 rateLimitVesc = 5;
     uint32 rateLimitCommonBladeControl = 6;  
+    uint32 rateLimitRotorVel = 7;
 }
 
 message AccMax {
     uint64 time = 1;
     Vector3 accmax = 2; // m/ss
+}
+
+message WindSonic {
+    uint64 time = 1;
+    float speed = 2; // m/s
+    float zVel = 3; // m/s
+    float direction = 4; // deg
+    float temp = 5; // degC
+}
+
+message RotorVel {
+    uint64 time = 1;
+    float genVel = 2;
+    float gearVel = 3;
+    float avgMotorCurrent = 4;
+}
+
+message DebugMessage {
+    uint64 time = 1;
+    float param1 = 2;
+    float param2 = 3;
+    float param3 = 4;
+    float param4 = 5;
+    float param5 = 6;
+    float param6 = 7;
+    float param7 = 8;
+    float param8 = 9;
 }
