@@ -32,6 +32,7 @@ message Wrapper {
         WINDSONIC = 22;
         ROTORVEL = 23;
         DEBUG = 24;
+        STEPPERFEEDBACK = 25;
     }
 
     DataType type = 1;
@@ -279,6 +280,8 @@ message UpdateFrequency {
     uint32 rateLimitVesc = 5;
     uint32 rateLimitCommonBladeControl = 6;  
     uint32 rateLimitRotorVel = 7;
+    uint32 rateLimitStepperFeedback = 8;
+    uint32 rateLimitDebug = 9;
 }
 
 message AccMax {
@@ -311,4 +314,13 @@ message DebugMessage {
     float param6 = 7;
     float param7 = 8;
     float param8 = 9;
+}
+
+message StepperFeedback {
+    uint64 time = 1;
+    float current1 = 2;
+    float current2 = 3;
+    float stepAngle1 = 4;
+    float stepAngle2 = 5;
+    float turbinePitchAngle = 6;
 }
