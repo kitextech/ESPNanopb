@@ -191,6 +191,7 @@ enum OperationMode {
     AboveCutout = 2; // When the blade pitch hits ~25 degree sustained; then go to 80 degree and set the maximum breaking torque to 
     ComsumePower = 3; // Go to pitch 90 degree and rotate -20 RPM backwards.
     GenerationStall = 4; // Stall default operation mode. 
+    PitchCalibration = 5; // if a pitch system fault has been detected - this mode can be used for recalibration 
 };
 
 message TurbineSupervisorControl {
@@ -246,15 +247,6 @@ message WindDirection {
 message HallRotor {
     int64 time = 1;
     bool on = 2;
-}
-
-message PitchControl {
-    float collective = 1;
-    bool speedControlEnabled = 2;
-    float omegaRotor = 3;
-    float omegaRotorSp = 4;
-    bool stallBrakeEnabled = 5;
-    float stallAngle = 6;
 }
 
 message ServoState {
@@ -320,7 +312,11 @@ message StepperFeedback {
     uint64 time = 1;
     float current1 = 2;
     float current2 = 3;
-    float stepAngle1 = 4;
-    float stepAngle2 = 5;
+    float collective = 4;
+    float cyclic = 5;
     float turbinePitchAngle = 6;
+    float accX = 7;
+    float accY = 8;
+    float gyroZ = 9;
+    uint32 status = 10 [(nanopb).int_size = IS_8];
 }
