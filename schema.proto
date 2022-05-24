@@ -33,6 +33,7 @@ message Wrapper {
         ROTORVEL = 23;
         DEBUG = 24;
         STEPPERFEEDBACK = 25;
+        FAULT = 26;
     }
 
     DataType type = 1;
@@ -319,4 +320,30 @@ message StepperFeedback {
     float accY = 8;
     float gyroZ = 9;
     uint32 status = 10 [(nanopb).int_size = IS_8];
+}
+
+
+message Fault {
+    
+    enum Type {
+        AccX = 0;
+        AccY = 1;
+        GyroZ = 2;
+        RotorOverspeed = 3;
+        StepperCurrent1 = 4;
+        StepperCurrent2 = 5;
+        Cyclic = 6;
+        RotorSpeedChance = 7;
+        None = 8;
+    }
+
+    enum Severity {
+        Recalibrate = 0;
+        Stop = 1;
+    }
+    
+    uint64 time = 1;
+    Type faultType = 2;
+    Severity severity = 3;
+    float value = 4;
 }
