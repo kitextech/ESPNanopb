@@ -338,8 +338,9 @@ message Fault {
     }
 
     enum Severity {
-        Recalibrate = 0;
-        Stop = 1;
+        Recalibrate = 0; // medium
+        Stop = 1; // high
+        Cutout = 2; // low
     }
     
     uint64 time = 1;
