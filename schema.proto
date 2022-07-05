@@ -34,6 +34,7 @@ message Wrapper {
         DEBUG = 24;
         STEPPERFEEDBACK = 25;
         FAULT = 26;
+        DCDC = 27;
     }
 
     DataType type = 1;
@@ -335,6 +336,7 @@ message Fault {
         Cyclic = 6;
         RotorSpeedChance = 7;
         None = 8;
+        PitchCutout = 9;
     }
 
     enum Severity {
@@ -347,4 +349,13 @@ message Fault {
     Type faultType = 2;
     Severity severity = 3;
     float value = 4;
+}
+
+message DCDC {
+    uint64 time = 1;
+    float Uin = 2;
+    float Uout = 3;
+    float IOut = 4;
+    float temp = 5;
+    float pwm = 6;
 }
