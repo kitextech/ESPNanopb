@@ -321,6 +321,7 @@ message StepperFeedback {
     float accY = 8;
     float gyroZ = 9;
     uint32 status = 10 [(nanopb).int_size = IS_8];
+    float accZ = 11;
 }
 
 
