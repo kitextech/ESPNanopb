@@ -339,6 +339,11 @@ message Fault {
         RotorSpeedChance = 7;
         None = 8;
         PitchCutout = 9;
+        InputOverVoltage = 10;
+        VescTimeout = 11;
+        StepTimeout = 12;
+        ImuTimeout = 13;
+        InputDisconnect = 14;
     }
 
     enum Severity {
