@@ -380,3 +380,8 @@ message DCDC {
     float temp = 5;
     float pwm = 6;
 }
+
+message IP {
+    uint64 time = 1;
+    int32 ip = 2;
+}
