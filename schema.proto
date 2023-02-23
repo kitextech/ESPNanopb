@@ -344,6 +344,12 @@ message Fault {
         StepTimeout = 12;
         ImuTimeout = 13;
         InputDisconnect = 14;
+        Step_EncoderError1 = 15;
+        Step_EncoderError2 = 16;
+        Step_CalTimeout = 17;
+        Step_DriverFault = 18;
+        Step_ImuFault = 19;
+        Step_HighCurSP = 20;
     }
 
     enum Severity {
@@ -356,6 +362,14 @@ message Fault {
     Type faultType = 2;
     Severity severity = 3;
     float value = 4;
+}
+
+message FaultStatus {
+    
+    uint64 time = 1;
+    uint64 cutoutFlags = 2;
+    uint64 recalFlags = 3;
+    uint64 stopFlags = 4;
 }
 
 message DCDC {
