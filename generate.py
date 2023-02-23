@@ -20,10 +20,19 @@ gitDistFolder = destinationFolder = "/Users/andreasokholm/src/kitex/opentwt/ESP3
 
 subprocess.call(["git", "tag"], cwd=gitDistFolder)
 
-
 val = input("new tag name: (string without starting v to skip) ")
 
 if (val[0] == "v"):
     mes = input("message to add: ")
+    subprocess.call(["git", "add", "."], cwd=gitDistFolder)
+    subprocess.call(["git", "commit", "-m", mes], cwd=gitDistFolder)
     subprocess.call(["git", "tag", "-a", val, "-m", mes], cwd=gitDistFolder)
     subprocess.call(["git", "push", "origin", val], cwd=gitDistFolder)
+
+    subprocess.call(["git", "add", "."])
+    subprocess.call(["git", "commit", "-m", mes])
+    subprocess.call(["git", "tag", "-a", val, "-m", mes])
+    subprocess.call(["git", "push", "origin", val])
+
+otherNanoFolders = "/Users/andreasokholm/src/kitex/opentwt/proto"
+subprocess.call(["python", "copyShemaFromNanopb.py"], cwd=otherNanoFolders)

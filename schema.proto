@@ -35,6 +35,8 @@ message Wrapper {
         STEPPERFEEDBACK = 25;
         FAULT = 26;
         DCDC = 27;
+        FAULTSTATUS = 28;
+        IP = 29;
     }
 
     DataType type = 1;
@@ -383,5 +385,5 @@ message DCDC {
 
 message IP {
     uint64 time = 1;
-    int32 ip = 2;
+    uint32 ip = 2;
 }
