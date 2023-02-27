@@ -256,8 +256,8 @@ message HallRotor {
 message ServoState {
 
     enum State {
-        Operational = 0;
-        Calibrating = 1;
+        Operational = 0; // calibrated
+        Calibrating = 1; // Uncalibrated
     }
     State state = 1; // the state of affairs
     float pitch = 2; // pitch angle can only be trusted once it's calibrated.
@@ -352,6 +352,7 @@ message Fault {
         Step_DriverFault = 18;
         Step_ImuFault = 19;
         Step_HighCurSP = 20;
+        BoomAngle = 21;
     }
 
     enum Severity {
