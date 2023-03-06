@@ -353,6 +353,7 @@ message Fault {
         Step_ImuFault = 19;
         Step_HighCurSP = 20;
         BoomAngle = 21;
+        Step_EncoderCal = 22;
     }
 
     enum Severity {
