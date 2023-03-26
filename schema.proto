@@ -37,6 +37,7 @@ message Wrapper {
         DCDC = 27;
         FAULTSTATUS = 28;
         IP = 29;
+        BLADEZOFFSET = 30;
     }
 
     DataType type = 1;
@@ -187,6 +188,7 @@ enum TurbineTopLevelMode {
     ShowMode = 7; // spin at low speed and pitch back and forth. 
     TorqueTestMode = 8; // Load the gearbox up to rated torque.
     OperationStall = 9; // Stall operation mode.
+    Calibration = 10; // Used to calibrate the blade (indoor) 
 };
 
 enum OperationMode {
@@ -388,4 +390,8 @@ message DCDC {
 message IP {
     uint64 time = 1;
     uint32 ip = 2;
+}
+
+message BladeZOffset {
+    float offset = 1;
 }
