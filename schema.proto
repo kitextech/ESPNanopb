@@ -38,6 +38,7 @@ message Wrapper {
         FAULTSTATUS = 28;
         IP = 29;
         BLADEZOFFSET = 30;
+        TURBINEPITCHPIDTUNING = 31;
     }
 
     DataType type = 1;
@@ -394,4 +395,15 @@ message IP {
 
 message BladeZOffset {
     float offset = 1;
+}
+
+message TurbinePitchPIDTuning {
+    float KPadjustment = 1;
+    float KIadjustment = 2;
+    float KDadjustment = 3;
+    float betaFilterAdjustment = 5;
+    float betaGain1 = 6;
+    float betaGain2 = 7;
+    float speedFilterRatio = 8;
+    float betaFilterRatio = 9;
 }
