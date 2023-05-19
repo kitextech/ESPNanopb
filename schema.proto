@@ -411,5 +411,5 @@ message TurbinePitchPIDTuning {
 
 message ForceArray {
     int64 time = 1;
-    repeated float force = 2 [packed = true, (nanopb).max_size = 4]; // N
+    repeated float force = 2 [packed = true, (nanopb).max_count = 4]; // N
 }
