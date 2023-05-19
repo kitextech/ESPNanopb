@@ -39,6 +39,7 @@ message Wrapper {
         IP = 29;
         BLADEZOFFSET = 30;
         TURBINEPITCHPIDTUNING = 31;
+        FORCEARRAY = 32;
     }
 
     DataType type = 1;
@@ -406,4 +407,9 @@ message TurbinePitchPIDTuning {
     float betaGain2 = 7;
     float speedFilterRatio = 8;
     float betaFilterRatio = 9;
+}
+
+message ForceArray {
+    int64 time = 1;
+    repeated float force = 2 [packed = true, (nanopb).max_size = 4]; // N
 }
