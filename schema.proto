@@ -40,6 +40,7 @@ message Wrapper {
         BLADEZOFFSET = 30;
         TURBINEPITCHPIDTUNING = 31;
         FORCEARRAY = 32;
+        FILAMENTDRY = 33;
     }
 
     DataType type = 1;
@@ -412,4 +413,14 @@ message TurbinePitchPIDTuning {
 message ForceArray {
     int64 time = 1;
     repeated float force = 2 [packed = true, (nanopb).max_count = 4]; // N
+}
+
+message FilamentDry {
+    uint64 time = 1;
+    float tempIn = 2;
+    float tempOut = 3;
+    float humIn = 4;
+    float humOut = 5;
+    bool relayTemp = 6;
+    bool relayHum = 7;
 }
