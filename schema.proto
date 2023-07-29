@@ -201,6 +201,7 @@ enum OperationMode {
     ComsumePower = 3; // Go to pitch 90 degree and rotate -20 RPM backwards.
     GenerationStall = 4; // Stall default operation mode. 
     PitchCalibration = 5; // if a pitch system fault has been detected - this mode can be used for recalibration 
+    PreOperationWarning = 6; // A alarm state before operation begins.
 };
 
 message TurbineSupervisorControl {
@@ -359,6 +360,7 @@ message Fault {
         Step_HighCurSP = 20;
         BoomAngle = 21;
         Step_EncoderCal = 22;
+        DriveBeltSkip = 23;
     }
 
     enum Severity {
