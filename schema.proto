@@ -360,7 +360,7 @@ message Fault {
         Step_HighCurSP = 20;
         BoomAngle = 21;
         Step_EncoderCal = 22;
-        DriveBeltSkip = 23;
+        BeltSkip = 23;
     }
 
     enum Severity {
