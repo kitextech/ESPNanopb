@@ -41,6 +41,7 @@ message Wrapper {
         TURBINEPITCHPIDTUNING = 31;
         FORCEARRAY = 32;
         FILAMENTDRY = 33;
+        ROTORVELAERO = 34;
     }
 
     DataType type = 1;
@@ -425,4 +426,11 @@ message FilamentDry {
     float humOut = 5;
     bool relayTemp = 6;
     bool relayHum = 7;
+}
+
+message rotorVelAero {
+    uint64 time = 1;
+    float TAero = 2;
+    float TSR = 3;
+    float windSpeed = 4;
 }
