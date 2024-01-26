@@ -428,7 +428,7 @@ message FilamentDry {
     bool relayHum = 7;
 }
 
-message rotorVelAero {
+message RotorVelAero {
     uint64 time = 1;
     float TAero = 2;
     float TSR = 3;
