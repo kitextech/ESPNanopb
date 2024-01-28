@@ -441,4 +441,5 @@ message WindStats {
     float mean = 2;
     float std = 3;
     float TI = 4;
+    int32 seconds = 5;
 }
