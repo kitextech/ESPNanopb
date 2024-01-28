@@ -42,6 +42,7 @@ message Wrapper {
         FORCEARRAY = 32;
         FILAMENTDRY = 33;
         ROTORVELAERO = 34;
+        WINDSTATS = 35;
     }
 
     DataType type = 1;
@@ -433,4 +434,11 @@ message RotorVelAero {
     float TAero = 2;
     float TSR = 3;
     float windSpeed = 4;
+}
+
+message WindStats {
+    uint64 time = 1;
+    float mean = 2;
+    float std = 3;
+    float TI = 4;
 }
