@@ -446,7 +446,7 @@ message WindStats {
 }
 
 
-message deviceInfo {
+message DeviceInfo {
     uint64 time = 1;
     uint32 hardVers = 2;
     uint32 softVers = 3;
