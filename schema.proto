@@ -43,6 +43,7 @@ message Wrapper {
         FILAMENTDRY = 33;
         ROTORVELAERO = 34;
         WINDSTATS = 35;
+        DEVICEINFO = 36;
     }
 
     DataType type = 1;
@@ -442,4 +443,12 @@ message WindStats {
     float std = 3;
     float TI = 4;
     int32 seconds = 5;
+}
+
+
+message deviceInfo {
+    uint64 time = 1;
+    uint32 hardVers = 2;
+    uint32 softVers = 3;
+    bytes gitHash = 4 [(nanopb).max_size = 20];
 }
