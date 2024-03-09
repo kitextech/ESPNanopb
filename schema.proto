@@ -44,6 +44,7 @@ message Wrapper {
         ROTORVELAERO = 34;
         WINDSTATS = 35;
         DEVICEINFO = 36;
+        TURBINESTATS = 37;
     }
 
     DataType type = 1;
@@ -451,4 +452,12 @@ message DeviceInfo {
     uint32 hardVers = 2;
     uint32 softVers = 3;
     bytes gitHash = 4 [(nanopb).max_size = 20];
+}
+
+message TurbineStats {
+    uint64 time = 1;
+    uint32 runTime = 2;
+    uint32 energy = 3;
+    uint32 revs = 4;
+    uint32 pitch = 5;
 }
