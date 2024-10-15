@@ -45,6 +45,7 @@ message Wrapper {
         WINDSTATS = 35;
         DEVICEINFO = 36;
         TURBINESTATS = 37;
+        IMU6 = 38;
     }
 
     DataType type = 1;
@@ -460,4 +461,10 @@ message TurbineStats {
     uint32 energy = 3;
     uint32 revs = 4;
     uint32 pitch = 5;
+}
+
+message Imu6 {
+    int64 time = 1;
+    Vector3 acc = 2; // m/ss
+    Vector3 gyro = 3; // rad/s
 }
