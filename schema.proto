@@ -46,6 +46,8 @@ message Wrapper {
         DEVICEINFO = 36;
         TURBINESTATS = 37;
         IMU6 = 38;
+        HEADING = 39;
+        MAGNETOMETER = 40;
     }
 
     DataType type = 1;
@@ -467,4 +469,14 @@ message Imu6 {
     int64 time = 1;
     Vector3 acc = 2; // m/ss
     Vector3 gyro = 3; // rad/s
+}
+
+message Heading {
+    uint64 time = 1;
+    float heading = 2;
+}
+
+message Magnetometer {
+    uint64 time = 1;
+    Vector3 mag = 2;
 }
