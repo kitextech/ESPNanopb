@@ -472,11 +472,11 @@ message Imu6 {
 }
 
 message Heading {
-    uint64 time = 1;
+    int64 time = 1;
     float heading = 2;
 }
 
 message Magnetometer {
-    uint64 time = 1;
+    int64 time = 1;
     Vector3 mag = 2;
 }
