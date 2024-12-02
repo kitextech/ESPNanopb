@@ -199,6 +199,7 @@ enum TurbineTopLevelMode {
     TorqueTestMode = 8; // Load the gearbox up to rated torque.
     OperationStall = 9; // Stall operation mode.
     Calibration = 10; // Used to calibrate the blade (indoor) 
+    CalibrationOutdoor = 11; // Used to calibrate the blade (outdoor)
 };
 
 enum OperationMode {
