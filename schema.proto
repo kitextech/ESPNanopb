@@ -487,17 +487,17 @@ message Magnetometer {
 
 message InverterPV {
     int64 time = 1;
-    float PV1_U = 2;
-    float PV1_I = 3;
-    float PV1_P = 4;
+    float voltage = 2;
+    float current = 3;
+    float power = 4;
 }
 
 message InverterBattery {
     int64 time = 1;
-    float battery_U = 2;
-    float battery_I = 3;
-    float battery_SOC = 4;
-    float battery_temp = 5;
+    float voltage = 2;
+    float current = 3;
+    float stateOfCharge = 4;
+    float temperature = 5;
 }
 
 message InverterStatus {
