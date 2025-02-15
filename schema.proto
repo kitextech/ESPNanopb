@@ -48,6 +48,9 @@ message Wrapper {
         IMU6 = 38;
         HEADING = 39;
         MAGNETOMETER = 40;
+        INVERTERPV = 41;
+        INVERTERBATTERY = 42;
+        INVERTERSTATUS = 43;
     }
 
     DataType type = 1;
