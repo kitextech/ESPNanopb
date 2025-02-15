@@ -481,3 +481,23 @@ message Magnetometer {
     int64 time = 1;
     Vector3 mag = 2;
 }
+
+message InverterPV {
+    int64 time = 1;
+    float PV1_U = 2;
+    float PV1_I = 3;
+}
+
+message InverterBattery {
+    int64 time = 1;
+    float battery_U = 2;
+    float battery_I = 3;
+    float battery_SOC = 4;
+    float battery_temp = 5;
+}
+
+message InverterStatus {
+    int64 time = 1;
+    uint32 status = 2;
+    uint32 dayEnergy = 3;
+}
