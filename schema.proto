@@ -51,6 +51,8 @@ message Wrapper {
         INVERTERPV = 41;
         INVERTERBATTERY = 42;
         INVERTERSTATUS = 43;
+        INVERTERENERGY = 44;
+        INVERTERTEMP = 45;
     }
 
     DataType type = 1;
@@ -504,4 +506,16 @@ message InverterStatus {
     int64 time = 1;
     uint32 status = 2;
     uint32 dayEnergy = 3;
+}
+
+message InverterEnergy {
+    int64 time = 1;
+    float dayEnergy = 4; // in kWh
+    float totalEnergy = 5; // in kWh
+}
+
+message InverterTemp {
+    int64 time = 1;
+    float temp_igbt = 2; // in Celsius
+    float temp_radiator = 3; // in Celsius
 }
