@@ -53,6 +53,8 @@ message Wrapper {
         INVERTERSTATUS = 43;
         INVERTERENERGY = 44;
         INVERTERTEMP = 45;
+        GENERATORTEMPERATURE = 46;
+        GENERATORANGLE = 47;
     }
 
     DataType type = 1;
@@ -519,3 +521,15 @@ message InverterTemp {
     float temp_igbt = 2; // in Celsius
     float temp_radiator = 3; // in Celsius
 }
+
+message GeneratorTemperature {
+    int64 time = 1;
+    float tempWinding = 2; // in Celsius
+    float tempElectronics = 3; // in Celsius
+    float tempSensor = 4; // in Celsius
+}
+
+message GeneratorAngle { // when pulses are received
+    int64 time = 1;
+    float angle = 2; // in degrees
+} 
