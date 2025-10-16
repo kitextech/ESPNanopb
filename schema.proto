@@ -376,6 +376,7 @@ message Fault {
         BoomAngle = 21;
         Step_EncoderCal = 22;
         BeltSkip = 23;
+        Gen_EncoderError = 24;
     }
 
     enum Severity {
