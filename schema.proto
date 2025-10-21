@@ -55,6 +55,8 @@ message Wrapper {
         INVERTERTEMP = 45;
         GENERATORTEMPERATURE = 46;
         GENERATORANGLE = 47;
+        INVERTERGRID = 48;
+        INVERTERFAULT = 49;
     }
 
     DataType type = 1;
@@ -534,3 +536,23 @@ message GeneratorAngle { // when pulses are received
     int64 time = 1;
     float angle = 2; // in degrees
 } 
+
+// A sub-message to hold data for a single phase
+message PhaseMeasurement {
+  float voltage = 1;
+  float current = 2;
+}
+
+message InverterGrid {
+    int64 time = 1;
+    PhaseMeasurement phase1 = 2;
+    PhaseMeasurement phase2 = 3;
+    PhaseMeasurement phase3 = 4;
+    float frequency = 5;
+}
+
+message InverterFault {
+    int64 time = 1;
+    uint32 warningCode = 2;
+    uint64 faultCode = 3;
+}
