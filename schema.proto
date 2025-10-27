@@ -379,6 +379,7 @@ message Fault {
         Step_EncoderCal = 22;
         BeltSkip = 23;
         Gen_EncoderError = 24;
+        PowerBusCurrentSensorFault = 25;
     }
 
     enum Severity {
