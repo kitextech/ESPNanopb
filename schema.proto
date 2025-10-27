@@ -380,6 +380,7 @@ message Fault {
         BeltSkip = 23;
         Gen_EncoderError = 24;
         PowerBusCurrentSensorFault = 25;
+        LossOfPowerExport = 26;
     }
 
     enum Severity {
