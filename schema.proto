@@ -57,6 +57,7 @@ message Wrapper {
         GENERATORANGLE = 47;
         INVERTERGRID = 48;
         INVERTERFAULT = 49;
+        TASKCOUNTER = 50;
     }
 
     DataType type = 1;
@@ -557,4 +558,35 @@ message InverterFault {
     int64 time = 1;
     uint32 warningCode = 2;
     uint64 faultCode = 3;
+}
+
+// ================= Task counters =================
+
+// Task identifiers for on-device schedulable loops or threads.
+// Keep numbering dense starting from 0 to minimize enum varint size.
+enum TaskId {
+    SUPERVISOR = 0;
+    CONTROL_INPUT = 1;
+    BLADE_CONTROL = 2;
+    UPLOAD = 3;
+    MONITOR = 4;
+    TURBINE_CONTROL = 5; // unified WC/Aero
+    IMU = 6;
+    COMPASS = 7;
+    TEMP = 8;
+    HIL_SERIAL_INPUT = 9;
+    WIND_STATS = 10;
+}
+
+// Cumulative counts per task. All counters are monotonically increasing and may wrap on overflow.
+message TaskCounterSample {
+    TaskId id = 1; // compact enum ID
+    uint32 loop_count = 2; // number of successful loop iterations executed
+    uint32 overrun_count = 3; // number of detected scheduling overruns
+}
+
+// Batch of all counters at one time point.
+message TaskCounters {
+    int64 time = 1; // from newLocalTime() / millis since epoch
+    repeated TaskCounterSample samples = 2; // one per active task
 }
