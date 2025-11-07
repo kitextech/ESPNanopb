@@ -576,6 +576,7 @@ enum TaskId {
     TEMP = 8;
     HIL_SERIAL_INPUT = 9;
     WIND_STATS = 10;
+    WEB_CONTROL = 11;
 }
 
 // Cumulative counts per task. All counters are monotonically increasing and may wrap on overflow.
