@@ -588,5 +588,5 @@ message TaskCounterSample {
 // Batch of all counters at one time point.
 message TaskCounters {
     int64 time = 1; // from newLocalTime() / millis since epoch
-    repeated TaskCounterSample samples = 2; // one per active task
+    repeated TaskCounterSample samples = 2 [(nanopb).max_count = 12]; // one per active task
 }
