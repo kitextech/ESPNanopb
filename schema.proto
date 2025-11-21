@@ -603,5 +603,5 @@ message MetmastTelemetry {
     // Met: Floats (Preserves averaging precision)
     float temp_avg_volts = 4;
     float pres_avg_volts = 5; 
-    float dir_avg_volts = 6;
+    float dir_avg_ratio = 6;
 }
