@@ -58,6 +58,7 @@ message Wrapper {
         INVERTERGRID = 48;
         INVERTERFAULT = 49;
         TASKCOUNTER = 50;
+        METMASTTELEMETRY = 51;
     }
 
     DataType type = 1;
@@ -590,4 +591,17 @@ message TaskCounterSample {
 message TaskCounters {
     int64 time = 1; // from newLocalTime() / millis since epoch
     repeated TaskCounterSample samples = 2 [(nanopb).max_count = 12]; // one per active task
+}
+
+// Metmast Telemetry Packet
+message MetmastTelemetry {
+    int64 time = 1; // microseconds since epoch
+    // Wind: Packed Integers (Efficient for arrays). 35 samples per second.
+    repeated uint32 cup1_raw_counts = 2 [packed=true, (nanopb).max_count = 35, (nanopb).int_size = IS_16]; // North sensor
+    repeated uint32 cup2_raw_counts = 3 [packed=true, (nanopb).max_count = 35, (nanopb).int_size = IS_16]; // South sensor
+
+    // Met: Floats (Preserves averaging precision)
+    float temp_avg_volts = 4;
+    float pres_avg_volts = 5; 
+    float dir_avg_volts = 6;
 }
