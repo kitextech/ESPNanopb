@@ -62,7 +62,7 @@ message Wrapper {
     }
 
     DataType type = 1;
-    bytes data = 2 [(nanopb).max_size = 92]; 
+    bytes data = 2 [(nanopb).max_size = 320]; 
     string target = 3 [(nanopb).max_size = 6];
 }
 
