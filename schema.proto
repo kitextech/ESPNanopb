@@ -203,24 +203,24 @@ enum TurbineTopLevelMode {
     Storage = 0; // Not implemented yet - shuts off the VESC and ESP
     Idle = 1; // VESC is turned off. Wifi enabled. Clibrate; when entered from Storage. Pitch to 90 degree. Turn Servo off.
     Hold = 2; // Temporary locking the rotation of the turbine
-    OOperation = 3; // Normal power producing operation.
+    Operation = 3; // Normal power producing operation.
     ManualOperationMode = 4; // Manual overwrite send TurbineControl Commands.
     ManualTurbineControlMode = 5; // Manual overwrite send TurbineControl Commands.
     ManualPitchCalibrateMode = 6; // Recalibrate pitch
-    SShowMode = 7; // spin at low speed and pitch back and forth.
+    ShowMode = 7; // spin at low speed and pitch back and forth.
     TorqueTestMode = 8; // Load the gearbox up to rated torque.
     OperationStall = 9; // Stall operation mode.
-    CCalibration = 10; // Used to calibrate the blade (indoor)
+    Calibration = 10; // Used to calibrate the blade (indoor)
     CalibrationOutdoor = 11; // Used to calibrate the blade (outdoor)
 };
 
 enum OperationMode {
     Hunting = 0; // When there is not enough wind to sustain operation. Pitch up and wait for activity. Current = 0
     Generation = 1; // In automatic mode; Default mode.
-    AAboveCutout = 2; // When the blade pitch hits ~25 degree sustained; then go to 80 degree and set the maximum breaking torque to
+    AboveCutout = 2; // When the blade pitch hits ~25 degree sustained; then go to 80 degree and set the maximum breaking torque to
     ComsumePower = 3; // Go to pitch 90 degree and rotate -20 RPM backwards.
-    GGenerationStall = 4; // Stall default operation mode.
-    PPitchCalibration = 5; // if a pitch system fault has been detected - this mode can be used for recalibration
+    GenerationStall = 4; // Stall default operation mode.
+    PitchCalibration = 5; // if a pitch system fault has been detected - this mode can be used for recalibration
     PreOperationWarning = 6; // A alarm state before operation begins.
 };
 
@@ -241,7 +241,7 @@ message TurbineControl {
     float value = 2;
 
     enum Command {
-        SStop = 0; // Sets duty cycle = 0.
+        Stop = 0; // Sets duty cycle = 0.
         Auto = 1; // Automatic turbine control as defined on the ESP
         Speed = 2; // RPM
         Pos = 3; // Position relative to position when first set
@@ -255,13 +255,13 @@ message TurbineControl {
 message TurbineControlLight {
     
     enum Command {
-        SStop = 0; // Sets duty cycle = 0.
+        Stop = 0; // Sets duty cycle = 0.
         Auto = 1; // Automatic turbine control as defined on the ESP
         Speed = 2; // RPM
         Pos = 3; // Position relative to position when first set
         Current = 4; // winding current negative is breaking
         Cutout = 5; // load reduction, but still producing power enought power to keep the turbine powered.
-        AAutoStall = 6; // Use rpm based algorithm to apply correct torque for stall control.
+        AutoStall = 6; // Use rpm based algorithm to apply correct torque for stall control.
     }
     
     Command command = 1;
@@ -291,7 +291,7 @@ message ServoState {
 
 message Alive {
     int64 time = 1;
-    sstring id = 2 [(nanopb).max_size = 6]; // 6 chars.
+    string id = 2 [(nanopb).max_size = 6]; // 6 chars.
 }
 
 message UpdateFrequency {
