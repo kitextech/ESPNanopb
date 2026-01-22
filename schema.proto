@@ -488,7 +488,11 @@ message Imu6 {
     // Euler angles in degrees, intrinsic ZYX convention (ENU frame)
     // x = roll  (positive = right side down)
     // y = pitch (positive = nose up)
-    // z = yaw   (positive = CCW from above; opposite of compass heading)
+    //   ori_euler.z = YAW   [deg] - Direction angle [0, 360) 
+    //                               Positive = CW (Compass convention)
+    //                               Reference: Measures angle to REAR of turbine (where wind comes from)
+    //                               180 degrees offset from forward-pointing heading.
+
     Vector3 ori_euler = 4;
 }
 
