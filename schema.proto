@@ -483,8 +483,13 @@ message TurbineStats {
 
 message Imu6 {
     int64 time = 1;
-    Vector3 acc = 2; // m/ss
-    Vector3 gyro = 3; // rad/s
+    Vector3 acc = 2; // G (9.81 m/ss)
+    Vector3 gyro = 3; // deg/s
+    // Euler angles in degrees, intrinsic ZYX convention (ENU frame)
+    // x = roll  (positive = right side down)
+    // y = pitch (positive = nose up)
+    // z = yaw   (positive = CCW from above; opposite of compass heading)
+    Vector3 ori_euler = 4;
 }
 
 message Heading {
