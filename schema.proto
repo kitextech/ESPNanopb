@@ -60,6 +60,7 @@ message Wrapper {
         TASKCOUNTER = 50;
         METMASTTELEMETRY = 51;
         ROTORGENANGLE = 52;
+        RPMSETPOINTS = 53;
     }
 
     DataType type = 1;
@@ -622,3 +623,20 @@ message MetmastTelemetry {
     float dir_avg_ratio = 6;
 }
 
+// Detailed operational data regarding RPM setpoints and limiting factors
+message RPMSetpoints {
+    int64 time = 1; // Timestamp
+    float input_sp = 2; // User input setpoint (from TurbineControlLight)
+    float wind_limited_sp = 3; // After wind speed limiting
+    float temp_limited_sp = 4; // After temperature limiting (reduction applied)
+    float current_limited_sp = 5; // After current/export limiting
+    float soft_target_sp = 6; // Soft approach target (prevents overshoot)
+    float ramped_sp = 7; // Final ramped setpoint sent to pitch control
+    float actual_rpm = 8; // Measured rotor RPM
+    float wind_speed = 9; // Estimated wind speed (m/s)
+    float temp_reduction = 10; // RPM reduction due to temperature (>=0)
+    float filtered_temp = 11; // Filtered winding temperature
+    float filtered_current = 12; // Filtered generator current
+    bool is_export_reduced = 13; // True if in low-current reduced export state
+    bool is_temp_control_active = 14; // True if temperature PID is active
+}
