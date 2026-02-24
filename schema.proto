@@ -61,6 +61,7 @@ message Wrapper {
         METMASTTELEMETRY = 51;
         ROTORGENANGLE = 52;
         RPMSETPOINTS = 53;
+        STEPPERSTATESNAPSHOT = 54;
     }
 
     DataType type = 1;
@@ -352,6 +353,25 @@ message StepperFeedback {
     uint32 status = 10 [(nanopb).int_size = IS_8];
     float accZ = 11;
     float temp = 12;
+}
+
+message StepperStateSnapshot {
+    uint64 time = 1;
+    float encoderAngleUpperDeg = 2;
+    float encoderAngleLowerDeg = 3;
+    float encoderAngleUpperCalibratedDeg = 4;
+    float encoderAngleLowerCalibratedDeg = 5;
+    float collectivePitchDeg = 6;
+    float cyclicPitchDeg = 7;
+    float stepperIndexUpper = 8;
+    float stepperIndexLower = 9;
+    float torqueUpper = 10;
+    float torqueLower = 11;
+    uint32 statusBits = 12 [(nanopb).int_size = IS_8];
+    float hfLoopHz = 13;
+    float loopJitterUs = 14;
+    float targetUpperDeg = 15;
+    float targetLowerDeg = 16;
 }
 
 
