@@ -63,6 +63,8 @@ message Wrapper {
         RPMSETPOINTS = 53;
         STEPPERSTATESNAPSHOT = 54;
         IMUBLADETIP = 55;
+        FORCERAW = 56;
+        FORCECALIBRATION = 57;
     }
 
     DataType type = 1;
@@ -673,4 +675,28 @@ message ImuBladeTip {
     repeated sint32 gyro_z = 4 [packed=true, (nanopb).max_count = 40, (nanopb).int_size = IS_16];
     uint32 acc_range = 5 [(nanopb).int_size = IS_8];    // full-scale range in G (e.g. 16 for +-16G)
     uint32 gyro_range = 6;                              // full-scale range in dps (e.g. 256, 512, 2048)
+}
+
+// Batched delta-encoded raw ADC readings from load cells (right-shifted to discard noisy LSBs).
+// ch[0] is absolute; ch[1..N-1] are deltas from the previous sample.
+// Server reconstructs absolute values by cumulative sum, then << right_shift (from ForceCalibration).
+message ForceRaw {
+    int64 time = 1; // microseconds since epoch (start of batch window)
+    repeated sint32 ch0 = 2 [packed=true, (nanopb).max_count = 80];
+    repeated sint32 ch1 = 3 [packed=true, (nanopb).max_count = 80];
+    repeated sint32 ch2 = 4 [packed=true, (nanopb).max_count = 60];
+    repeated sint32 ch3 = 5 [packed=true, (nanopb).max_count = 40];
+}
+
+// Periodic calibration snapshot for load cells. Sent every N seconds (EEPROM-configurable).
+// Server matches to ForceRaw via Wrapper target field.
+// To convert raw to Newtons: force_N = ((stored_value << right_shift) - offset) / scale
+message ForceCalibration {
+    int64 time = 1;
+    repeated int32 offsets = 2 [packed=true, (nanopb).max_count = 4];
+    repeated float scales = 3 [packed=true, (nanopb).max_count = 4];
+    repeated uint32 gains = 4 [packed=true, (nanopb).max_count = 4, (nanopb).int_size = IS_8];
+    uint32 frequency = 5;                               // sampling frequency in Hz (10, 20, 80, 320)
+    uint32 num_channels = 6 [(nanopb).int_size = IS_8];
+    uint32 right_shift = 7 [(nanopb).int_size = IS_8];  // bits shifted off raw ADC values
 }
