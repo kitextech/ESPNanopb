@@ -65,6 +65,7 @@ message Wrapper {
         IMUBLADETIP = 55;
         FORCERAW = 56;
         FORCECALIBRATION = 57;
+        PITCHSPBREAKDOWN = 58;
     }
 
     DataType type = 1;
@@ -686,6 +687,26 @@ message ForceRaw {
     repeated sint32 ch1 = 3 [packed=true, (nanopb).max_count = 80];
     repeated sint32 ch2 = 4 [packed=true, (nanopb).max_count = 60];
     repeated sint32 ch3 = 5 [packed=true, (nanopb).max_count = 40];
+}
+
+// Breakdown of the contributors feeding PitchControlManager::pitchSPOperation()
+// in ESP32Turbine. Published at ~10 Hz to visualize how the TSR Cp-max
+// scheduler, PI RPM controller, cold-generator stall-margin floor, startup
+// ramps and anti-stall floors arbitrate into the final pitch SP.
+message PitchSPBreakdown {
+    int64 time = 1;
+    float pitchSP = 2;            // final SP sent to stepper
+    float tsrScheduledSP = 3;     // Cp-max TSR scheduler output (0 when ineligible)
+    float rpmControlSP = 4;       // PI RPM controller output (upper-clamped)
+    float tempPitchFloor = 5;     // coldPitchFloor() contribution (stall-margin min pitch)
+    float pitchInSP = 6;          // soft startup pitch-in ramp contribution
+    float optimalStart = 7;       // startup seek curve contribution
+    float minPitchManual = 8;     // slew-limited manual min-pitch
+    float minHighAcc = 9;         // anti-stall (MIN_PITCH_ANTI_STALL) floor
+    float tsr = 10;               // TSR estimate from WindEstimator used by scheduler
+    float windingTempC = 11;      // winding temp driving tempPitchFloor
+    bool tsrSchedulerSelected = 12; // sub-selector: scheduler vs PI
+    bool rpmControllerSelected = 13; // outer selector: PI vs otherLimits floor pool
 }
 
 // Periodic calibration snapshot for load cells. Sent every N seconds (EEPROM-configurable).
