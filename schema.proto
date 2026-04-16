@@ -66,6 +66,13 @@ message Wrapper {
         FORCERAW = 56;
         FORCECALIBRATION = 57;
         PITCHSPBREAKDOWN = 58;
+        ROTORVELSERIES = 59;
+        BLADECONTROLSERIES = 60;
+        STEPPERFEEDBACKSERIES = 61;
+        IMU6SERIES = 62;
+        EULERSERIES = 63;
+        ROTORGENANGLESERIES = 64;
+        STEPPERSTATUS = 65;
     }
 
     DataType type = 1;
@@ -720,4 +727,102 @@ message ForceCalibration {
     uint32 frequency = 5;                               // sampling frequency in Hz (10, 20, 80, 320)
     uint32 num_channels = 6 [(nanopb).int_size = IS_8];
     uint32 right_shift = 7 [(nanopb).int_size = IS_8];  // bits shifted off raw ADC values
+}
+
+// =========================================================
+// High-frequency telemetry series (packed quantized samples)
+// =========================================================
+// Each *Series message bundles N correlated samples emitted by a
+// producer task. Sample timestamps reconstructed as:
+//   sample_time_us[i] = time + i * sample_period_us
+// Sample rate = (producer task rate) / divider, where divider is set
+// at runtime via HTTP /messageFrequency endpoints on the ESP32.
+//
+// Encoding conventions per channel:
+//   "delta": ch[0] absolute; ch[1..N-1] deltas from previous sample.
+//   "abs":   every sample is an independent absolute value.
+//
+// Scales are fixed (hardcoded) for the TWT-11 Aero turbine design.
+// If scales ever need to change, introduce a V2 message type rather
+// than adding per-message scale fields. Precedent: Vesc -> Vesc2.
+
+// Rotor velocity + motor current, from TurbineControlTaskAero.
+// gen_vel:       delta, scale = 20 rad/s / 32768 ~= 6.1e-4 rad/s/unit, range +-20 rad/s (+-191 RPM).
+// motor_current: abs,   scale = 1 mA/unit, range +-32.767 A.
+message RotorVelSeries {
+    int64 time = 1;                                                                          // first-sample us epoch
+    uint32 sample_period_us = 2;
+    repeated sint32 gen_vel = 3       [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 motor_current = 4 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+}
+
+// Pitch controller state, from BladeControlTask (sampled on pitch command arrival).
+// All channels: delta, scale = 100 deg / 32768 ~= 0.003 deg/unit, range +-100 deg.
+// pitch_estimate is the beta-gain-schedule angle (not a sensor estimate).
+// pitch_i is the PI integrator value expressed in pitch-degree-equivalent units.
+message BladeControlSeries {
+    int64 time = 1;
+    uint32 sample_period_us = 2;
+    repeated sint32 pitch_sp = 3       [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 pitch_estimate = 4 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 pitch_i = 5        [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+}
+
+// Pitch actuator feedback, from BladeControlTask (sampled on stepper serial packet).
+// current1, current2: delta, raw driver setpoint units, range +-255.
+//                     *** Gain-dependent: values at stepper-board gain=20 are ~2x values at gain=10. ***
+//                     Future: replace with belt-force once mechanical model validated.
+// collective: delta, scale = 100 deg / 32768 ~= 0.003 deg/unit, range +-100 deg. Matches pitch_sp.
+// cyclic:     delta, scale = 10 deg / 32768 ~= 3.05e-4 deg/unit, range +-10 deg.
+message StepperFeedbackSeries {
+    int64 time = 1;
+    uint32 sample_period_us = 2;
+    repeated sint32 current1 = 3   [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 current2 = 4   [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 collective = 5 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 cyclic = 6     [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+}
+
+// Raw QMI8658C IMU samples, from imuQMI8658CTask.
+// acc_{x,y,z}:  abs, raw int16 from sensor. Convert: G     = raw / 4096   (range +-8G,   4096 LSB/G).
+// gyro_{x,y,z}: abs, raw int16 from sensor. Convert: deg/s = raw / 128    (range +-256,  128  LSB/(deg/s)).
+// 15 samples (not 20) to fit 320-byte Wrapper budget at worst-case full-scale vibration.
+message Imu6Series {
+    int64 time = 1;
+    uint32 sample_period_us = 2;
+    repeated sint32 acc_x = 3  [packed=true, (nanopb).max_count = 15, (nanopb).int_size = IS_16];
+    repeated sint32 acc_y = 4  [packed=true, (nanopb).max_count = 15, (nanopb).int_size = IS_16];
+    repeated sint32 acc_z = 5  [packed=true, (nanopb).max_count = 15, (nanopb).int_size = IS_16];
+    repeated sint32 gyro_x = 6 [packed=true, (nanopb).max_count = 15, (nanopb).int_size = IS_16];
+    repeated sint32 gyro_y = 7 [packed=true, (nanopb).max_count = 15, (nanopb).int_size = IS_16];
+    repeated sint32 gyro_z = 8 [packed=true, (nanopb).max_count = 15, (nanopb).int_size = IS_16];
+}
+
+// Filter-output Euler angles, from imuQMI8658CTask.
+// All channels: delta, scale = 180 deg / 32768 ~= 0.0055 deg/unit, range +-180 deg.
+// yaw is continuously unwrapped on the ESP (not rewrapped to [0,360)); server rewraps for display.
+message EulerSeries {
+    int64 time = 1;
+    uint32 sample_period_us = 2;
+    repeated sint32 roll = 3  [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 pitch = 4 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated sint32 yaw = 5   [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+}
+
+// Rotor + generator angles, from TurbineControlTaskAero.
+// Both channels: abs, 0-360 deg mapped to 0-16383 (14-bit), scale = 360 / 16384 ~= 0.022 deg/unit.
+// 14-bit guarantees 2-byte varint per sample. No delta encoding (wrap breaks deltas).
+message RotorGenAngleSeries {
+    int64 time = 1;
+    uint32 sample_period_us = 2;
+    repeated uint32 rotor_angle = 3 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    repeated uint32 gen_angle = 4   [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+}
+
+// Slow-varying stepper status (bitflags + driver temperature). Emitted at 1 Hz from BladeControlTask.
+// Replaces the status/temp fields that used to live in single-shot StepperFeedback on Aero.
+message StepperStatus {
+    int64 time = 1;
+    uint32 status = 2 [(nanopb).int_size = IS_8];
+    float temp = 3;
 }
