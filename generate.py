@@ -5,7 +5,7 @@ import subprocess
 
 subprocess.call(['sh', './generateSchema.sh'])
 
-destinationFolder = "/Users/andreasokholm/src/kitex/opentwt/ESP32Stepper/ESP32StepperMain/lib/ESP32Utils/src/ProtobufBridge"
+destinationFolder = "/Users/andreasokholm/src/kitex/firmware/ESP32Stepper/ESP32StepperMain/lib/ESP32Utils/src/ProtobufBridge"
 
 files2copy = ["schema.pb.c", "schema.pb.h"]
 
@@ -16,7 +16,7 @@ for filename in files2copy:
 # import sys
 # print(sys.argv)
 
-gitDistFolder = destinationFolder = "/Users/andreasokholm/src/kitex/opentwt/ESP32Stepper/ESP32StepperMain/lib/ESP32Utils"
+gitDistFolder = destinationFolder = "/Users/andreasokholm/src/kitex/firmware/ESP32Stepper/ESP32StepperMain/lib/ESP32Utils"
 
 subprocess.call(["git", "tag"], cwd=gitDistFolder)
 
@@ -34,5 +34,5 @@ if (val[0] == "v"):
     subprocess.call(["git", "tag", "-a", val, "-m", mes])
     subprocess.call(["git", "push", "origin", val])
 
-otherNanoFolders = "/Users/andreasokholm/src/kitex/opentwt/proto"
+otherNanoFolders = "/Users/andreasokholm/src/kitex/firmware/proto"
 subprocess.call(["python", "copyShemaFromNanopb.py"], cwd=otherNanoFolders)
