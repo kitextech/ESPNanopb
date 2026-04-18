@@ -73,6 +73,7 @@ message Wrapper {
         EULERSERIES = 63;
         ROTORGENANGLESERIES = 64;
         STEPPERSTATUS = 65;
+        PITCHTESTEVENT = 66;
     }
 
     DataType type = 1;
@@ -416,6 +417,8 @@ message Fault {
         Gen_EncoderError = 24;
         PowerBusCurrentSensorFault = 25;
         LossOfPowerExport = 26;
+        PitchTestFailed = 27;     // raised by PitchTestController on aborted failsafe verification test
+        StepperDisabled = 28;     // raised when the stepper latches disableSteppers and the turbine isn't otherwise stopping
     }
 
     enum Severity {
@@ -825,4 +828,21 @@ message StepperStatus {
     int64 time = 1;
     uint32 status = 2 [(nanopb).int_size = IS_8];
     float temp = 3;
+}
+
+// Pitch failsafe verification test event — emitted once per test end by
+// ESP32Turbine BladeControlTask / PitchTestController. One Influx point per test.
+message PitchTestEvent {
+    int64  time                    = 1;  // event-end time, microseconds since epoch
+    uint32 outcome                 = 2 [(nanopb).int_size = IS_8];  // 0=Success, 1=AbortPitch, 2=AbortRPM, 3=Timeout, 4=Interrupted
+    uint32 duration_ms             = 3 [(nanopb).int_size = IS_16];
+    float  pitch_start_deg         = 4;
+    float  pitch_end_deg           = 5;
+    float  rpm_start               = 6;
+    float  rpm_end                 = 7;
+    float  wind_start              = 8;   // m/s
+    float  wind_end                = 9;   // m/s
+    float  generator_torque_start  = 10;  // Nm
+    float  generator_torque_end    = 11;  // Nm
+    float  abort_value             = 12;  // deg pitchDrop or RPM rpmRise; 0 for non-abort
 }
