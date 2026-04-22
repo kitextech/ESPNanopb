@@ -419,6 +419,7 @@ message Fault {
         LossOfPowerExport = 26;
         PitchTestFailed = 27;     // raised by PitchTestController on aborted failsafe verification test
         StepperDisabled = 28;     // raised when the stepper latches disableSteppers and the turbine isn't otherwise stopping
+        Gen_WindingOverTemp = 29; // generator winding temperature exceeded hard safety limit (100 C)
     }
 
     enum Severity {
@@ -757,6 +758,11 @@ message RotorVelSeries {
     uint32 sample_period_us = 2;
     repeated sint32 gen_vel = 3       [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
     repeated sint32 motor_current = 4 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    // gyro_y bleed-through correction applied to omega before the pitch loop:
+    //   omega_for_pitch = gen_vel - gyro_y_correction
+    // Absolute int16, quantized at 20 rad/s / 32768 (matches gen_vel scale).
+    // All-zero when gyroYBeta == 0 (feature disabled).
+    repeated sint32 gyro_y_correction = 5 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
 }
 
 // Pitch controller state, from BladeControlTask (sampled on pitch command arrival).
