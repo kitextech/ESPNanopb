@@ -74,6 +74,7 @@ message Wrapper {
         ROTORGENANGLESERIES = 64;
         STEPPERSTATUS = 65;
         PITCHTESTEVENT = 66;
+        WINDSERIES = 67;
     }
 
     DataType type = 1;
@@ -851,4 +852,15 @@ message PitchTestEvent {
     float  generator_torque_start  = 10;  // Nm
     float  generator_torque_end    = 11;  // Nm
     float  abort_value             = 12;  // deg pitchDrop or RPM rpmRise; 0 for non-abort
+}
+// Davis-style wind sensor series (period-based anemometer + analog vane).
+// 10 bins x 200 ms = 2 s window, sent at 0.5 Hz.
+//   anemo_period_us: mean pulse period this bin (us). >= 1_900_000 means stalled.
+//   dir_mv:          calibrated wind-vane ADC reading (esp_adc_cal at 0 dB, 0..1100).
+// Conversion to m/s and degrees lives in uploadToInflux per per-unit calibration.
+// See firmware/ESP32DavisWind/docs/UPLOAD_PATTERN.md.
+message WindSeries {
+    int64 time = 1; // microseconds since epoch, end of window
+    repeated uint32 anemo_period_us = 2 [packed=true, (nanopb).max_count = 10, (nanopb).int_size = IS_32];
+    repeated uint32 dir_mv          = 3 [packed=true, (nanopb).max_count = 10, (nanopb).int_size = IS_16];
 }
