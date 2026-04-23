@@ -719,6 +719,14 @@ message PitchSPBreakdown {
     float windingTempC = 11;      // winding temp driving tempPitchFloor
     bool tsrSchedulerSelected = 12; // sub-selector: scheduler vs PI
     bool rpmControllerSelected = 13; // outer selector: PI vs otherLimits floor pool
+    // K-observer (KObserver.h) — classifies active Deye curve {K16,K20,K26,K34}
+    // from (omegaRotor, generatorTorque) at 200 Hz. kFloor is the resulting
+    // min-pitch contribution (0/5/10/15 deg) in the otherLimits max() pool.
+    int32 kClass = 14;              // 16 / 20 / 26 / 34
+    float kHatLast = 15;            // instant K_hat per sample [Nm/(rad/s)^2]
+    float kHatUp = 16;              // 100 ms causal LP (UP-trigger driver)
+    float kHatDn = 17;              // 500 ms causal LP (DOWN-trigger driver)
+    float kFloor = 18;              // min-pitch floor from kClass [deg]
 }
 
 // Periodic calibration snapshot for load cells. Sent every N seconds (EEPROM-configurable).
