@@ -75,6 +75,7 @@ message Wrapper {
         STEPPERSTATUS = 65;
         PITCHTESTEVENT = 66;
         WINDSERIES = 67;
+        TIMEWATCHDOGEVENT = 68;
     }
 
     DataType type = 1;
@@ -871,4 +872,13 @@ message WindSeries {
     int64 time = 1; // microseconds since epoch, end of window
     repeated uint32 anemo_period_us = 2 [packed=true, (nanopb).max_count = 10, (nanopb).int_size = IS_32];
     repeated uint32 dir_mv          = 3 [packed=true, (nanopb).max_count = 10, (nanopb).int_size = IS_16];
+}
+
+// Emitted by ESP32Utils TimeWatchdog whenever it hard-steps the system clock.
+// Lets the fleet's time-keeping behavior be monitored over time.
+message TimeWatchdogEvent {
+    int64  time           = 1; // microseconds since epoch, post-step (corrected wall time)
+    float  offset_seconds = 2; // signed offset that was just applied (positive = clock was behind, negative = was ahead)
+    uint32 trip_count     = 3; // consecutive samples above threshold that triggered the step
+    string ntp_server     = 4 [(nanopb).max_size = 64]; // NTP source the watchdog queried
 }
