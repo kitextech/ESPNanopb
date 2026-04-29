@@ -76,6 +76,8 @@ message Wrapper {
         PITCHTESTEVENT = 66;
         WINDSERIES = 67;
         TIMEWATCHDOGEVENT = 68;
+        COMPASSCAL = 69;
+        TRENDPNOSTATE = 70;
     }
 
     DataType type = 1;
@@ -422,6 +424,8 @@ message Fault {
         PitchTestFailed = 27;     // raised by PitchTestController on aborted failsafe verification test
         StepperDisabled = 28;     // raised when the stepper latches disableSteppers and the turbine isn't otherwise stopping
         Gen_WindingOverTemp = 29; // generator winding temperature exceeded hard safety limit (100 C)
+        Turbine_ImuFault = 30;    // turbine-board internal IMU reported a failure mode (Aero only); fault.value carries IMUFailureMode
+        Turbine_ImuTimeout = 31;  // turbine-board internal IMU produced no data for >300ms (Aero only); fault.value carries elapsed seconds
     }
 
     enum Severity {
@@ -544,6 +548,24 @@ message Magnetometer {
     Vector3 mag = 2;
 }
 
+// Compass calibration snapshot. Uploaded periodically (every 1h) AND
+// immediately after any change via WebControl, so analysis can reconstruct
+// what cal was active at any moment in the magnetometer time series.
+// rotor_cal_x/y are the 18-bin (20°) rotor magnetic-influence cal in raw
+// counts, subtracted from magnetometer raw values upstream of offset/scale.
+// Wire size: ~190 bytes (well under the 320-byte Wrapper limit).
+message CompassCal {
+    int64 time = 1;
+    float offsetX = 2;
+    float offsetY = 3;
+    float scaleX = 4;
+    float scaleY = 5;
+    float azimuthOffset = 6;
+    repeated float rotor_cal_x = 7 [(nanopb).max_count = 18];
+    repeated float rotor_cal_y = 8 [(nanopb).max_count = 18];
+    uint32 cal_id = 9;  // monotonic, bumps on every NVS write
+}
+
 message InverterPV {
     int64 time = 1;
     float voltage = 2;
@@ -639,6 +661,11 @@ message TaskCounterSample {
     TaskId id = 1; // compact enum ID
     uint32 loop_count = 2; // number of successful loop iterations executed
     uint32 overrun_count = 3; // number of detected scheduling overruns
+    // CPU utilisation per core for this task over the sampling window, scaled
+    // x10 (0-1000 = 0-100.0%). Populated only when CPU_PROFILER_ENABLED is
+    // built into the firmware; zero otherwise.
+    uint32 cpu_pct_x10_core0 = 4 [(nanopb).int_size = IS_16];
+    uint32 cpu_pct_x10_core1 = 5 [(nanopb).int_size = IS_16];
 }
 
 // Batch of all counters at one time point.
@@ -881,4 +908,38 @@ message TimeWatchdogEvent {
     float  offset_seconds = 2; // signed offset that was just applied (positive = clock was behind, negative = was ahead)
     uint32 trip_count     = 3; // consecutive samples above threshold that triggered the step
     string ntp_server     = 4 [(nanopb).max_size = 64]; // NTP source the watchdog queried
+}
+
+// Per-dwell snapshot of the V2 Trend-PNO controller in ESP32DeyeControl.
+// Emitted from TrendPnoController::tick() right after each step decision,
+// so post-analysis can replay the regime detector behaviour against the
+// inverter telemetry without recomputing dwell stats from raw V/I.
+//
+// override codes (override_branch):
+//   0 = none (trend regression took the decision)
+//   1 = K-floor lock (V_TI low, V_mean low, !sat) -> step DOWN
+//   2 = above-rated headroom (V_TI low, V_mean high, !sat) -> step UP
+//   3 = saturated (sat_frac high) -> step DOWN
+//
+// dir is sint32 so +1/-1 cost 1 wire byte. K and override_branch fit in
+// uint8 trivially. slope_w_per_k is the trend regression's b coefficient
+// (W per K-unit) computed in tick(); slope_valid==false means the buffer
+// didn't span enough K variation and the controller alternated direction.
+message TrendPnoState {
+    int64  time              = 1;  // microseconds since epoch, end-of-dwell
+    uint32 k_before          = 2  [(nanopb).int_size = IS_8];   // K active during the dwell
+    uint32 k_after           = 3  [(nanopb).int_size = IS_8];   // K commanded for next dwell
+    sint32 dir               = 4  [(nanopb).int_size = IS_8];
+    uint32 step_count        = 5  [(nanopb).int_size = IS_16];  // running count since /auto2 start
+    uint32 buf_count         = 6  [(nanopb).int_size = IS_8];
+    uint32 override_branch   = 7  [(nanopb).int_size = IS_8];
+    bool   slope_valid       = 8;
+    float  p_avg             = 9;  // dwell-mean DC bus power [W]
+    float  v_mean            = 10; // dwell-mean PV1 voltage [V]
+    float  v_std             = 11; // dwell stddev of V [V]
+    float  i_mean            = 12; // dwell-mean PV1 current [A]
+    float  i_std             = 13; // dwell stddev of I [A]
+    float  sat_frac_v2       = 14; // slope-ratio saturation indicator (0..1)
+    float  sat_frac_cap      = 15; // legacy: fraction of samples I >= 0.95*I_cap
+    float  slope_w_per_k     = 16; // trend regression b coefficient [W/K]
 }
