@@ -78,6 +78,7 @@ message Wrapper {
         TIMEWATCHDOGEVENT = 68;
         COMPASSCAL = 69;
         TRENDPNOSTATE = 70;
+        SYSTEMHEALTH = 71;
     }
 
     DataType type = 1;
@@ -942,4 +943,21 @@ message TrendPnoState {
     float  sat_frac_v2       = 14; // slope-ratio saturation indicator (0..1)
     float  sat_frac_cap      = 15; // legacy: fraction of samples I >= 0.95*I_cap
     float  slope_w_per_k     = 16; // trend regression b coefficient [W/K]
+}
+
+
+// System-level health snapshot, emitted at the same 10 s cadence as TaskCounters
+// from the TaskCycleMonitor task. Carries the metrics that previously only went
+// to Serial: WiFi link quality, internal heap headroom (largest contiguous
+// MALLOC_CAP_8BIT block is the OTA-readiness proxy), and the smallest per-task
+// stack high-water-mark across the tracked tasks (so a stack near overflow
+// surfaces in telemetry before it crashes).
+message SystemHealth {
+    int64  time                = 1; // microseconds since epoch
+    sint32 rssi                = 2 [(nanopb).int_size = IS_16]; // dBm; -50 excellent, -85+ unreliable
+    uint32 free_heap           = 3; // ESP.getFreeHeap() bytes
+    uint32 min_free_heap       = 4; // ESP.getMinFreeHeap() bytes (low-water since boot)
+    uint32 largest_block_8     = 5; // heap_caps_get_largest_free_block(MALLOC_CAP_8BIT) — relevant for ArduinoOTA Update.begin()
+    uint32 min_stack_hwm_bytes = 6 [(nanopb).int_size = IS_16]; // smallest free stack across tracked tasks (bytes)
+    string min_stack_task      = 7 [(nanopb).max_size = 16];    // FreeRTOS task name with the smallest HWM
 }
