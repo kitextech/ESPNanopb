@@ -79,6 +79,8 @@ message Wrapper {
         COMPASSCAL = 69;
         TRENDPNOSTATE = 70;
         SYSTEMHEALTH = 71;
+        DEBUGTEXT = 72;
+        DEYEKEVENT = 73;
     }
 
     DataType type = 1;
@@ -355,6 +357,24 @@ message DebugMessage {
     float param6 = 7;
     float param7 = 8;
     float param8 = 9;
+}
+
+// Generic, queryable debug event with a categorical tag and a human-readable
+// message string. `category` becomes an Influx tag (low cardinality, indexed
+// — keep to a small fixed set per subsystem, e.g. "IMU", "Stepper",
+// "Compass"). `message` is a free-form Influx field — describe what
+// happened. `value1..4` carry optional numeric context.
+//
+// Wire size: time ~10 + category ~18 + message ~82 + 4 floats ~20 ≈ 130 B
+// (well under the 320 B Wrapper.data limit).
+message DebugTextMessage {
+    int64 time = 1;                                     // microseconds since epoch
+    string category = 2 [(nanopb).max_size = 16];       // -> Influx tag (e.g. "IMU")
+    string message  = 3 [(nanopb).max_size = 80];       // -> Influx string field
+    float value1 = 4;
+    float value2 = 5;
+    float value3 = 6;
+    float value4 = 7;
 }
 
 message StepperFeedback {
@@ -960,4 +980,29 @@ message SystemHealth {
     uint32 largest_block_8     = 5; // heap_caps_get_largest_free_block(MALLOC_CAP_8BIT) — relevant for ArduinoOTA Update.begin()
     uint32 min_stack_hwm_bytes = 6 [(nanopb).int_size = IS_16]; // smallest free stack across tracked tasks (bytes)
     string min_stack_task      = 7 [(nanopb).max_size = 16];    // FreeRTOS task name with the smallest HWM
+    sint32 noise_floor_dbm     = 8 [(nanopb).int_size = IS_16]; // 2.4 GHz noise floor in dBm (0 if unavailable). SNR = rssi - noise_floor_dbm.
+}
+
+// Emitted by ESP32DeyeControl on every K change (any source: manual /torqueSet,
+// sweep, /auto P&O, /auto2 Trend-PNO, /autoTurbineFeedback) and on AutoTurbineFB
+// I_CAP integrator steps. Carries enough decision context to debug the
+// closed-loop K + I_SAT controller in InfluxDB without relying on Serial logs.
+//
+// One event per K transition or I_CAP nudge — sparse, not a sample stream.
+message DeyeKEvent {
+    int64  time              = 1;  // microseconds since epoch
+    uint32 source            = 2  [(nanopb).int_size = IS_8]; // 0=manual,1=sweep,2=pno,3=trendPno,4=autoTurbFB
+    uint32 event_kind        = 3  [(nanopb).int_size = IS_8]; // 0=k_change,1=icap_change,2=start,3=stop
+    uint32 k_before          = 4  [(nanopb).int_size = IS_8]; // K loaded before this event
+    uint32 k_after           = 5  [(nanopb).int_size = IS_8]; // K loaded after this event
+    sint32 k_target_unslewed = 6  [(nanopb).int_size = IS_8]; // autoTurbFB only; -1 if N/A
+    float  pitch_deg         = 7;  // last operating-regime mean pitch fed to autoTurbFB (NaN if N/A)
+    float  temp_winding_c    = 8;  // last winding temp fed to autoTurbFB (NaN if N/A)
+    float  i_load_a          = 9;  // observed PV current at decision time (gates the loops)
+    uint32 i_cap_decia       = 10 [(nanopb).int_size = IS_8]; // current cap for k_after, in 0.1 A units
+    sint32 i_step_dir        = 11 [(nanopb).int_size = IS_8]; // -1/0/+1 for I_CAP integrator step
+    string state             = 12 [(nanopb).max_size = 12];   // turbine-side regime tag ("op"/"idle"/...)
+    bool   pitch_valid       = 13;
+    bool   temp_valid        = 14;
+    uint32 override_branch   = 15 [(nanopb).int_size = IS_8]; // Trend-PNO override branch (0=none,1=floor,2=headroom,3=sat); 255 if N/A
 }
