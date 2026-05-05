@@ -126,7 +126,8 @@ message AccGyro {
 message HumidityTemperature {
     int64 time = 1;
     float humidity = 2; // %
-    float temperature = 3; // %
+    float temperature = 3; // C
+    float pressure = 4; // hPa; 0 = sensor doesn't report it (e.g. SHT31). Server gates field on >0.
 }
 
 message Temperature {
