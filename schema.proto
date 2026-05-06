@@ -715,7 +715,7 @@ message MetmastTelemetry {
 message RPMSetpoints {
     int64 time = 1; // Timestamp
     float input_sp = 2; // User input setpoint (from TurbineControlLight)
-    float wind_limited_sp = 3; // After wind speed limiting
+    float wind_limited_sp = 3; // After all 3 wind-related limits (apparent, instantaneous, turbulence)
     float temp_limited_sp = 4; // After temperature limiting (reduction applied)
     float current_limited_sp = 5; // After current/export limiting
     float soft_target_sp = 6; // Soft approach target (prevents overshoot)
@@ -727,6 +727,9 @@ message RPMSetpoints {
     float filtered_current = 12; // Filtered generator current
     bool is_export_reduced = 13; // True if in low-current reduced export state
     bool is_temp_control_active = 14; // True if temperature PID is active
+    float apparent_wind_limit_sp = 15; // RPM cap from 10-min mean apparent-wind limiter (always reported)
+    float inst_wind_limit_sp = 16;     // RPM cap from instantaneous wind-speed linear derating (always reported)
+    float turbulence_reduction = 17;   // RPM reduction due to 10-min TI derating (>=0)
 }
 
 // Raw IMU blade-tip packet: 2 acc axes + 1 gyro axis, 40 samples at 50Hz (0.8s window).
