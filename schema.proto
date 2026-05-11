@@ -732,8 +732,11 @@ message RPMSetpoints {
     float turbulence_reduction = 17;   // RPM reduction due to 10-min TI derating (>=0)
 }
 
-// Raw IMU blade-tip packet: 2 acc axes + 1 gyro axis, 40 samples at 50Hz (0.8s window).
+// Raw IMU blade-tip packet: 2 acc axes + 1 gyro axis, variable sample count and rate.
 // Raw 16-bit signed integers. Convert to physical units: value = raw * range / 32768.0
+// time is the timestamp of the FIRST sample; sample_period_us spaces the rest.
+// max_count = 40 in the C struct; firmware fills up to whatever fits the
+// 320 B Wrapper.data budget (see project_blade_tip_imu_53rpm_cutoff.md).
 message ImuBladeTip {
     int64 time = 1; // microseconds since epoch (start of window)
     repeated sint32 acc_x = 2 [packed=true, (nanopb).max_count = 40, (nanopb).int_size = IS_16];
@@ -741,6 +744,7 @@ message ImuBladeTip {
     repeated sint32 gyro_z = 4 [packed=true, (nanopb).max_count = 40, (nanopb).int_size = IS_16];
     uint32 acc_range = 5 [(nanopb).int_size = IS_8];    // full-scale range in G (e.g. 16 for +-16G)
     uint32 gyro_range = 6;                              // full-scale range in dps (e.g. 256, 512, 2048)
+    uint32 sample_period_us = 7;                        // microseconds between consecutive samples; 0 means "unknown" -> server falls back to 20000 (50Hz legacy)
 }
 
 // Batched delta-encoded raw ADC readings from load cells (right-shifted to discard noisy LSBs).
