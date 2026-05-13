@@ -887,11 +887,18 @@ message EulerSeries {
 // Rotor + generator angles, from TurbineControlTaskAero.
 // Both channels: abs, 0-360 deg mapped to 0-16383 (14-bit), scale = 360 / 16384 ~= 0.022 deg/unit.
 // 14-bit guarantees 2-byte varint per sample. No delta encoding (wrap breaks deltas).
+//
+// belt_angle_teeth: drift-free belt position from RotorPositionEstimator, in belt
+// teeth (0..BELT_TEETH=225 for Continental HTD 8M-1800-50 on the 6:1 PULLEY_192_32).
+// One snapshot per 20-sample series packet = ~2.5 Hz. ~5 B per packet (~13 B/s).
+// 0.0 is a valid belt position (at the reference tooth); proto3 elides it on the
+// wire and the consumer reads it back as 0.0 — functionally equivalent.
 message RotorGenAngleSeries {
     int64 time = 1;
     uint32 sample_period_us = 2;
     repeated uint32 rotor_angle = 3 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
     repeated uint32 gen_angle = 4   [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    float belt_angle_teeth = 5;
 }
 
 // Slow-varying stepper status (bitflags + driver temperature). Emitted at 1 Hz from BladeControlTask.
