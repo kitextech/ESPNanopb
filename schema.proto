@@ -81,6 +81,9 @@ message Wrapper {
         SYSTEMHEALTH = 71;
         DEBUGTEXT = 72;
         DEYEKEVENT = 73;
+        TASKNAMEREG = 74;
+        TASKSTACKHWM = 75;
+        PITCHLINKHEALTH = 76;
     }
 
     DataType type = 1;
@@ -378,6 +381,35 @@ message DebugTextMessage {
     float value4 = 7;
 }
 
+// Per-task stack high-water-mark telemetry — split into two messages so
+// numeric updates stay small (~50 B) and ship once/min, while the names→
+// index mapping refreshes every 10 min (or on first WiFi-up post-boot).
+//
+// TaskNameRegistration is sent at boot + every 10 min: the i-th entry of
+// `names` is the task whose HWM appears at the i-th entry of TaskStackHwm.
+// 10-min cadence is short enough that a restarted uploadToInflux picks up
+// the mapping within 10 min, but long enough to be cheap. Wire size:
+// 25 names × 14 B max + overhead ≈ ~370 B worst case, BUT typical names
+// are 5-10 B (e.g. "wifi", "esp_timer", "loopTask"), so 25 names ≈ 230 B
+// in practice — within the 320 B Wrapper budget.
+//
+// Replaces the prior `debugText category="stackHwm"` per-task burst
+// (~14 string-typed Influx rows every 10 s); cuts Influx write volume
+// ~12× while making the data a proper numeric series.
+message TaskNameRegistration {
+    int64 time = 1;
+    repeated string names = 2 [(nanopb).max_count = 25, (nanopb).max_size = 14];
+}
+
+// Sent every minute, positional with the most-recent TaskNameRegistration
+// (server keeps a small per-`target` cache of names; entries arriving
+// before any registration are buffered or dropped).
+// Wire size: 25 × ~2 B varint + overhead ≈ ~60 B.
+message TaskStackHwm {
+    int64 time = 1;
+    repeated uint32 hwm_bytes = 2 [packed=true, (nanopb).max_count = 25, (nanopb).int_size = IS_16];
+}
+
 message StepperFeedback {
     uint64 time = 1;
     float current1 = 2;
@@ -448,6 +480,7 @@ message Fault {
         Gen_WindingOverTemp = 29; // generator winding temperature exceeded hard safety limit (100 C)
         Turbine_ImuFault = 30;    // turbine-board internal IMU reported a failure mode (Aero only); fault.value carries IMUFailureMode
         Turbine_ImuTimeout = 31;  // turbine-board internal IMU produced no data for >300ms (Aero only); fault.value carries elapsed seconds
+        PitchLinkDegraded = 32;   // PitchLink v2 receiver saw a sustained high CRC-fail rate on the stepper<->turbine UART; fault.value carries CRC fails in the trip 1-second window
     }
 
     enum Severity {
@@ -1020,4 +1053,20 @@ message DeyeKEvent {
     bool   pitch_valid       = 13;
     bool   temp_valid        = 14;
     uint32 override_branch   = 15 [(nanopb).int_size = IS_8]; // Trend-PNO override branch (0=none,1=floor,2=headroom,3=sat); 255 if N/A
+}
+
+// PitchLink v2 link-health snapshot. One row per second from each side of the
+// stepper<->turbine UART; counters are monotonic since the publisher booted.
+// frames_ok is the only field that should grow steadily under normal
+// operation; sustained growth in crc_fails / version_fails / type_fails
+// indicates a degraded link. The turbine-side detector raises
+// Fault_Type_PitchLinkDegraded on sustained CRC error rate.
+message PitchLinkHealth {
+    int64  time          = 1;  // microseconds since epoch
+    uint32 frames_ok     = 2;  // successfully decoded frames
+    uint32 crc_fails     = 3;  // frames discarded because CRC-16 mismatched
+    uint32 version_fails = 4;  // frames discarded because VER byte != PitchLink::VERSION
+    uint32 type_fails    = 5;  // frames discarded because MsgType was unknown
+    uint32 sync_searches = 6;  // sync-byte mismatches forcing a resync
+    uint32 seq_gaps      = 7;  // count of SEQ-counter discontinuities (one per missed frame)
 }
