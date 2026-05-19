@@ -84,6 +84,7 @@ message Wrapper {
         TASKNAMEREG = 74;
         TASKSTACKHWM = 75;
         PITCHLINKHEALTH = 76;
+        ENCODERRAW = 77;
     }
 
     DataType type = 1;
@@ -1069,4 +1070,22 @@ message PitchLinkHealth {
     uint32 type_fails    = 5;  // frames discarded because MsgType was unknown
     uint32 sync_searches = 6;  // sync-byte mismatches forcing a resync
     uint32 seq_gaps      = 7;  // count of SEQ-counter discontinuities (one per missed frame)
+}
+
+// Research-only raw generator-encoder stream. Full 21-bit MT6835 angle
+// (no quantization-down to 14 bit like RotorGenAngleSeries) so analyses
+// like Savitzky-Golay velocity reconstruction see the true encoder noise
+// floor instead of a wire-quantization floor. Default OFF
+// (messageFrequency.encoderRaw = 0); enable via
+// /messageFrequency/encoderRaw?set=HF for a research run.
+//
+// 50 samples / packet × 3-byte varint (21 bit hits the 3-byte boundary
+// at 2097151) ≈ 150 B + ~20 B overhead = ~170 B encoded, well under
+// the 320 B Wrapper budget. At HF (200 Hz) packets fire every 250 ms.
+message EncoderRaw {
+    int64  time             = 1;  // microseconds since epoch, first sample
+    uint32 sample_period_us = 2;
+    // Absolute 21-bit MT6835 raw angle, 0..2097151 mapped to 0..360°.
+    // Absolute (not delta) — analysis tooling doesn't have to handle wrap.
+    repeated uint32 angle   = 3 [packed=true, (nanopb).max_count = 50, (nanopb).int_size = IS_32];
 }
