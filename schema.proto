@@ -85,6 +85,7 @@ message Wrapper {
         TASKSTACKHWM = 75;
         PITCHLINKHEALTH = 76;
         ENCODERRAW = 77;
+        TIMEBEACONSAMPLE = 78;
     }
 
     DataType type = 1;
@@ -1088,4 +1089,23 @@ message EncoderRaw {
     // Absolute 21-bit MT6835 raw angle, 0..2097151 mapped to 0..360°.
     // Absolute (not delta) — analysis tooling doesn't have to handle wrap.
     repeated uint32 angle   = 3 [packed=true, (nanopb).max_count = 50, (nanopb).int_size = IS_32];
+}
+
+// One sample emitted by an ESP-NOW TimeBeacon receiver per received frame.
+// The headline metric is `wall_offset_us` = master_wall_us − local_wall_us;
+// in a UTC-synced fleet this is the receiver's wall-time error vs the
+// master, sampled at the beacon rate (currently 2 Hz). Together the four
+// signed fields let an analyser separate "master clock jumped" (master_mono
+// delta departs from beacon period) from "local clock jumped" (local_mono
+// delta departs from beacon period).
+//
+// At ~30 B per sample × 2 Hz this stream is ~60 B/s per receiver — small.
+message TimeBeaconSample {
+    int64  time                 = 1;  // µs since epoch — receiver wall time at packet receive
+    sint64 wall_offset_us       = 2;  // master_wall_us - local_wall_us (signed); sint = cheap small-magnitude encoding
+    sint64 master_mono_dt_us    = 3;  // master esp_timer delta since last packet from this master (0 on first packet)
+    sint64 local_mono_dt_us     = 4;  // local  esp_timer delta since last packet from this master (0 on first packet)
+    uint32 seq                  = 5;  // master's per-boot sequence number
+    uint32 master_mac_low24     = 6;  // low 24 bits of the master's MAC address (becomes a string tag on the server)
+    int32  rssi                 = 7 [(nanopb).int_size = IS_8]; // dBm; 0 when unavailable (IDF v4 recv-cb limitation)
 }
