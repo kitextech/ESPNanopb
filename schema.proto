@@ -422,7 +422,7 @@ message StepperFeedback {
     float accX = 7;
     float accY = 8;
     float gyroZ = 9;
-    uint32 status = 10 [(nanopb).int_size = IS_8];
+    uint32 status = 10 [(nanopb).int_size = IS_16];
     float accZ = 11;
     float temp = 12;
 }
@@ -439,7 +439,7 @@ message StepperStateSnapshot {
     float stepperIndexLower = 9;
     float torqueUpper = 10;
     float torqueLower = 11;
-    uint32 statusBits = 12 [(nanopb).int_size = IS_8];
+    uint32 statusBits = 12 [(nanopb).int_size = IS_16];
     float hfLoopHz = 13;
     float loopJitterUs = 14;
     float targetUpperDeg = 15;
@@ -940,7 +940,7 @@ message RotorGenAngleSeries {
 // Replaces the status/temp fields that used to live in single-shot StepperFeedback on Aero.
 message StepperStatus {
     int64 time = 1;
-    uint32 status = 2 [(nanopb).int_size = IS_8];
+    uint32 status = 2 [(nanopb).int_size = IS_16];
     float temp = 3;
 }
 
