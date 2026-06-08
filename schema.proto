@@ -483,6 +483,8 @@ message Fault {
         Turbine_ImuFault = 30;    // turbine-board internal IMU reported a failure mode (Aero only); fault.value carries IMUFailureMode
         Turbine_ImuTimeout = 31;  // turbine-board internal IMU produced no data for >300ms (Aero only); fault.value carries elapsed seconds
         PitchLinkDegraded = 32;   // PitchLink v2 receiver saw a sustained high CRC-fail rate on the stepper<->turbine UART; fault.value carries CRC fails in the trip 1-second window
+        Step_EncoderOutOfRange = 33; // stepper axis travelled >6 motor revs from the calibrated zero (well past the +-4-rev command clamp) -- a runaway / stuck-reporting encoder. Stepper pitches up + disables; should never occur in production
+        Rotor_EncoderMismatch = 34;  // turbine rotor MT6835 disagreed with the independent 1-PPR Hall by >10 deg for 2 consecutive revs (above 10 RPM) -- stuck/lying encoder that would defeat overspeed protection; feathers. Healthy per-rev drift ~1.2 deg std @ 34 RPM
     }
 
     enum Severity {
