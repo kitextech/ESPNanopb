@@ -86,6 +86,7 @@ message Wrapper {
         PITCHLINKHEALTH = 76;
         ENCODERRAW = 77;
         TIMEBEACONSAMPLE = 78;
+        CYCBALSTATE = 79;
     }
 
     DataType type = 1;
@@ -1110,4 +1111,23 @@ message TimeBeaconSample {
     uint32 seq                  = 5;  // master's per-boot sequence number
     uint32 master_mac_low24     = 6;  // low 24 bits of the master's MAC address (becomes a string tag on the server)
     int32  rssi                 = 7 [(nanopb).int_size = IS_8]; // dBm; 0 when unavailable (IDF v4 recv-cb limitation)
+}
+
+// Cyclic 1P balancer (CyclicBalancer.h, BladeControlTask) state snapshot.
+// Backs GET /pitch/cycBal; emitted at ~10 Hz for routine experiment logging of
+// the lock-in demod + d-q integrator that nulls 1P blade imbalance. Angles in
+// deg; demod amp/I/Q in rad/s (nacelle nod-rate Fourier components);
+// rotor_angle_deg is the azimuth used for demod/Coleman. ~60 B encoded (<<320).
+message CycBalState {
+    int64 time            = 1;  // µs since epoch (newLocalTime())
+    float cmd_amp_deg     = 2;  // commanded 1P cyclic amplitude, deg
+    float cmd_phase_deg   = 3;  // commanded 1P cyclic phase, deg
+    float amp             = 4;  // 1P nod-rate amplitude proxy, rad/s
+    float demod_i         = 5;  // lock-in in-phase component, rad/s
+    float demod_q         = 6;  // lock-in quadrature component, rad/s
+    float dc_deg          = 7;  // DC shear-comp cyclic component, deg
+    float rotor_angle_deg = 8;  // rotor azimuth at sample, deg
+    float rpm             = 9;  // rotor speed, RPM
+    bool  enabled         = 10; // cyclic balancer master enable
+    bool  tripped         = 11; // trip latch state
 }
