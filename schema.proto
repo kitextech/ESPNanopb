@@ -768,6 +768,14 @@ message RPMSetpoints {
     float apparent_wind_limit_sp = 15; // RPM cap from 10-min mean apparent-wind limiter (always reported)
     float inst_wind_limit_sp = 16;     // RPM cap from instantaneous wind-speed linear derating (always reported)
     float turbulence_reduction = 17;   // RPM reduction due to 10-min TI derating (>=0)
+    // Sigma-of-wind derate and nacelle-acceleration staircase (2026-08-05).
+    // Both stages ship DISABLED; these fields report regardless, so the laws can
+    // be judged against real weather before either is allowed to act.
+    float wind_sigma60 = 18;      // 60 s std of the 1 Hz wind SAMPLES (m/s); 0 until the window fills
+    float sigma_reduction = 19;   // RPM reduction the sigma derate actually applied (>=0)
+    float accel_std = 20;         // std of the selected nacelle acc axis over the staircase window, in g
+    float accel_reduction = 21;   // RPM reduction the staircase actually applied (>=0, 0 while disabled)
+    uint32 accel_tier = 22 [(nanopb).int_size = IS_8];  // 0/1/2 — LIVE even while the stage is disabled
 }
 
 // Raw IMU blade-tip packet: 2 acc axes + 1 gyro axis, variable sample count and rate.
