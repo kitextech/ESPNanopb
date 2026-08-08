@@ -776,6 +776,11 @@ message RPMSetpoints {
     float accel_std = 20;         // std of the selected nacelle acc axis over the staircase window, in g
     float accel_reduction = 21;   // RPM reduction the staircase actually applied (>=0, 0 while disabled)
     uint32 accel_tier = 22 [(nanopb).int_size = IS_8];  // 0/1/2 — LIVE even while the stage is disabled
+    // K-law rung scheduler (2026-08-08, report-only). Mirrors the
+    // /turbineControlTask/klaw endpoint so decisions land in Influx directly.
+    sint32 klaw_rung = 23 [(nanopb).int_size = IS_8];    // ladder rung index; -1 = warming up
+    uint32 klaw_ti_tier = 24 [(nanopb).int_size = IS_8]; // 0/1/2 = normal/high/extreme TI tier (own hysteresis)
+    uint32 klaw_rec_k = 25 [(nanopb).int_size = IS_8];   // recommended K the scheduler is pushing; 0 until ready
 }
 
 // Raw IMU blade-tip packet: 2 acc axes + 1 gyro axis, variable sample count and rate.
