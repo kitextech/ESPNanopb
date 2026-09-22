@@ -631,6 +631,11 @@ message InverterPV {
     float voltage = 2;
     float current = 3;
     float power = 4;
+    // Which DC input / MPPT tracker this sample came from (1-based).
+    // 0 = unset, i.e. a pre-2026-09 sender that only ever read one input.
+    // Without it two inputs on one device land in the same influx series,
+    // milliseconds apart and mutually indistinguishable.
+    uint32 mppt = 5;
 }
 
 message InverterBattery {
