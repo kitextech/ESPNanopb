@@ -474,7 +474,7 @@ message Fault {
         Step_HighCurSP = 20;
         BoomAngle = 21;
         Step_EncoderCal = 22;
-        BeltSkip = 23;
+        BeltSkip = 23;            // rotor speed mismatch: over the last 3 rotor-Hall revolutions the generator encoder (/ belt ratio) counted >30 % more or fewer rotor revolutions than the Hall (belt off or slipping, stuck or lying encoder); fault.value carries encoder revs per Hall rev. ESP32Turbine since 2026-10 (was a reserved name)
         Gen_EncoderError = 24;
         PowerBusCurrentSensorFault = 25;
         LossOfPowerExport = 26;
@@ -486,6 +486,8 @@ message Fault {
         PitchLinkDegraded = 32;   // PitchLink v2 receiver saw a sustained high CRC-fail rate on the stepper<->turbine UART; fault.value carries CRC fails in the trip 1-second window
         Step_EncoderOutOfRange = 33; // stepper axis travelled >6 motor revs from the calibrated zero (well past the +-4-rev command clamp) -- a runaway / stuck-reporting encoder. Stepper pitches up + disables; should never occur in production
         Rotor_EncoderMismatch = 34;  // turbine rotor MT6835 disagreed with the independent 1-PPR Hall by >10 deg for 2 consecutive revs (above 10 RPM) -- stuck/lying encoder that would defeat overspeed protection; feathers. Healthy per-rev drift ~1.2 deg std @ 34 RPM
+        Rotor_HallOverspeed = 35;    // overspeed measured on the 1-PPR rotor Hall alone (independent of the encoder): 3 consecutive revolutions each faster than the overspeed limit (75 rpm); fault.value carries the Hall rpm
+        Rotor_HallSilent = 36;       // the generator encoder counted 3.5 rotor revolutions with no rotor Hall pulse: a dead Hall or a phantom-rotating encoder, either way the independent second speed channel is gone; fault.value carries encoder rotor rpm
     }
 
     enum Severity {
@@ -885,6 +887,12 @@ message RotorVelSeries {
     // Absolute int16, quantized at 20 rad/s / 32768 (matches gen_vel scale).
     // All-zero when gyroYBeta == 0 (feature disabled).
     repeated sint32 gyro_y_correction = 5 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    // Rotor speed from the 1-PPR rotor Hall (60 s / pulse period, capped by the
+    // time since the last pulse so it decays to 0 when pulses stop). The second,
+    // encoder-independent speed channel. Unsigned in sense (a 1-PPR Hall can't
+    // see direction). Same scale and delta coding as gen_vel: rad/s,
+    // 20 rad/s / 32768. Absent from builds before 2026-10.
+    repeated sint32 hall_vel = 6      [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
 }
 
 // Pitch controller state, from BladeControlTask (sampled on pitch command arrival).
