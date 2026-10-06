@@ -852,9 +852,13 @@ message ForceCalibration {
     repeated int32 offsets = 2 [packed=true, (nanopb).max_count = 4];
     repeated float scales = 3 [packed=true, (nanopb).max_count = 4];
     repeated uint32 gains = 4 [packed=true, (nanopb).max_count = 4, (nanopb).int_size = IS_8];
-    uint32 frequency = 5;                               // sampling frequency in Hz (10, 20, 80, 320)
+    uint32 frequency = 5;                               // ADC conversion rate in Hz (10, 20, 80, 320)
     uint32 num_channels = 6 [(nanopb).int_size = IS_8];
     uint32 right_shift = 7 [(nanopb).int_size = IS_8];  // bits shifted off raw ADC values
+    // 0 = every conversion is stored (spacing 1/frequency). >0 = each stored ForceRaw
+    // sample is the mean of the conversions in one window of this length, sent as its
+    // own one-sample batch whose time is the window centre (ESP32Loadcell 1 Hz / 10 s).
+    uint32 sample_period_ms = 8;
 }
 
 // =========================================================
