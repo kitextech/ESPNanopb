@@ -646,6 +646,48 @@ message InverterBattery {
     float current = 3;
     float stateOfCharge = 4;
     float temperature = 5;
+    // Present only on a fresh, validated HV BMS read; never reuse cached values.
+    InverterBatteryBms bms = 6;
+    // Absent/false on older senders and between BMS polls.
+    bool bmsReadAttempted = 7;
+    InverterBatteryAlarms bmsAlarms = 8;
+}
+
+// Deye HV BMS1 registers 10040..10070. Cell voltages are volts.
+// Temperature register encoding differs from the published table: keep raw
+// counts until cross-checked against the BMS display. Locations are BMS IDs.
+message InverterBatteryBms {
+    float cellVoltageMax = 1;
+    float cellVoltageMin = 2;
+    uint32 cellVoltageMaxModule = 3;
+    uint32 cellVoltageMaxCell = 4;
+    uint32 cellVoltageMinModule = 5;
+    uint32 cellVoltageMinCell = 6;
+    uint32 tempAverageRaw = 7;
+    uint32 tempMaxRaw = 8;
+    uint32 tempMaxModule = 9;
+    uint32 tempMaxSensor = 10;
+    uint32 tempMinRaw = 11;
+    uint32 tempMinModule = 12;
+    uint32 tempMinSensor = 13;
+    uint32 bmsTempRaw = 14;
+    bool chargeAllowed = 15;
+    bool dischargeAllowed = 16;
+    float chargeCurrentLimit = 17;
+    float dischargeCurrentLimit = 18;
+    uint32 cycleCount = 19;
+    uint32 stateOfHealth = 20;
+    uint32 packCount = 21;
+    uint32 basicStatus = 22;
+    uint32 systemState = 23;
+}
+
+// Raw bitfields from HV BMS1 10110..10113; independent read/presence.
+message InverterBatteryAlarms {
+    uint32 warning1 = 1;
+    uint32 warning2 = 2;
+    uint32 fault1 = 3;
+    uint32 fault2 = 4;
 }
 
 message InverterStatus {
