@@ -489,6 +489,7 @@ message Fault {
         Rotor_HallOverspeed = 35;    // overspeed measured on the 1-PPR rotor Hall alone (independent of the encoder): 3 consecutive revolutions each faster than the overspeed limit (75 rpm); fault.value carries the Hall rpm
         Rotor_HallSilent = 36;       // the generator encoder counted 3.5 rotor revolutions with no rotor Hall pulse: a dead Hall or a phantom-rotating encoder, either way the independent second speed channel is gone; fault.value carries encoder rotor rpm
         Step_VibrationFailsafe = 37; // the pitch stepper's own vibration failsafe tripped (s2 board IMU, 3 peaks > 1.4 g within 300 ms; PitchLink status bit 11 VibrationFailsafeCause): s2 pitched up open-loop and put its drivers to sleep. Before this code t3 saw it only as StepperDisabled (28). Class C (machine) in the reset policy of 2026-10-12
+        Rotor_BeltOff = 38;          // main belt off or broken: the generator encoder (the only speed sensor) fell from >= 30 rpm to below 30 % of its prior speed and stayed there 1 s, which the coupled drivetrain cannot do (fitted on the DE25001 break of 2026-03-02; 0 false hits in ~5,400 running h). Stop; class C. fault.value = rotor rpm before the loss
     }
 
     enum Severity {
