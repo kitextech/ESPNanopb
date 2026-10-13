@@ -490,6 +490,7 @@ message Fault {
         Rotor_HallSilent = 36;       // the generator encoder counted 3.5 rotor revolutions with no rotor Hall pulse: a dead Hall or a phantom-rotating encoder, either way the independent second speed channel is gone; fault.value carries encoder rotor rpm
         Step_VibrationFailsafe = 37; // the pitch stepper's own vibration failsafe tripped (s2 board IMU, 3 peaks > 1.4 g within 300 ms; PitchLink status bit 11 VibrationFailsafeCause): s2 pitched up open-loop and put its drivers to sleep. Before this code t3 saw it only as StepperDisabled (28). Class C (machine) in the reset policy of 2026-10-12
         Rotor_BeltOff = 38;          // main belt off or broken: the generator encoder (the only speed sensor) fell from >= 30 rpm to below 30 % of its prior speed and stayed there 1 s, which the coupled drivetrain cannot do (fitted on the DE25001 break of 2026-03-02; 0 false hits in ~5,400 running h). Stop; class C. fault.value = rotor rpm before the loss
+        Rotor_BeltSkipShock = 39;    // main belt skip seen without the Hall: a sharp nacelle shock (>= 0.6 g, >= 3.2 x RMS) with a brief generator-current dip (to 0.25-0.8, back to >= 0.5 within 1 s) while loaded; fitted on 46 AO-labelled windows (24/25 real, 0/20 false; t3/DE/t5 archive). Stop; class B (escalates to C on 3 in 24 h). fault.value = shock peak [g]
     }
 
     enum Severity {
