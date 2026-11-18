@@ -913,6 +913,13 @@ message BladeControlSeries {
     repeated sint32 pitch_sp = 3       [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
     repeated sint32 pitch_estimate = 4 [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
     repeated sint32 pitch_i = 5        [packed=true, (nanopb).max_count = 20, (nanopb).int_size = IS_16];
+    // The controller pitch offset (/pitch/offset trim, deg, clamped +-8) at the
+    // batch's first sample: abs, not delta. pitch_sp leaves it out and
+    // stepFeedback.collective includes it (wire SP = pitch_sp + pitch_offset
+    // while no stop fault). pitch_offset_valid = the sender logs it (proto3
+    // has no presence for a float: 0 from an older sender is not an offset).
+    float pitch_offset = 6;
+    bool pitch_offset_valid = 7;
 }
 
 // Pitch actuator feedback, from BladeControlTask (sampled on stepper serial packet).
